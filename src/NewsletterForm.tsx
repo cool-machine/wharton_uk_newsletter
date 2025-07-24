@@ -1,1 +1,12 @@
-{"code":"rate-limited","message":"You have hit the rate limit. Please upgrade to keep chatting.","providerLimitHit":false,"isRetryable":true}
+import React from 'react';
+
+function NewsletterForm() {
+  return (
+    <div className="newsletter-form">
+      <h2>Newsletter Form</h2>
+      <p>Newsletter form component placeholder</p>
+    </div>
+  );
+}
+
+export default NewsletterForm;
