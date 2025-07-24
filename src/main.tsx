@@ -9,7 +9,7 @@ import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Router>
+    <Router basename="/newsletter_v3">
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/april" element={<AprilNewsletter />} />
