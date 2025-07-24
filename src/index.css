@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* TipTap Editor - Force inline font-size styles to work */
+.ProseMirror span[style*="font-size: 12px"] { font-size: 12px !important; }
+.ProseMirror span[style*="font-size: 14px"] { font-size: 14px !important; }
+.ProseMirror span[style*="font-size: 16px"] { font-size: 16px !important; }
+.ProseMirror span[style*="font-size: 18px"] { font-size: 18px !important; }
+.ProseMirror span[style*="font-size: 20px"] { font-size: 20px !important; }
+.ProseMirror span[style*="font-size: 24px"] { font-size: 24px !important; }
+.ProseMirror span[style*="font-size: 28px"] { font-size: 28px !important; }
+.ProseMirror span[style*="font-size: 32px"] { font-size: 32px !important; }
+
+/* Newsletter preview - Force inline font-size styles to work */
+span[style*="font-size: 12px"] { font-size: 12px !important; }
+span[style*="font-size: 14px"] { font-size: 14px !important; }
+span[style*="font-size: 16px"] { font-size: 16px !important; }
+span[style*="font-size: 18px"] { font-size: 18px !important; }
+span[style*="font-size: 20px"] { font-size: 20px !important; }
+span[style*="font-size: 24px"] { font-size: 24px !important; }
+span[style*="font-size: 28px"] { font-size: 28px !important; }
+span[style*="font-size: 32px"] { font-size: 32px !important; }
+
+/* Debug CSS - more specific selectors */
+.ProseMirror span[style] {
+  font-size: inherit !important;
+}
+
+.ProseMirror span[style*="font-size"] {
+  font-size: var(--font-size) !important;
+}
+
+/* Force inline styles to work */
+.ProseMirror * {
+  font-size: inherit;
+}
+
+.ProseMirror span {
+  font-size: inherit;
+}
+
+/* Test class for debugging */
+.test-font-size {
+  color: red;
+  font-weight: bold;
+}
