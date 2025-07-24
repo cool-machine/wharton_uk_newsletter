@@ -53,6 +53,7 @@ export interface NewsletterData {
 
 function App() {
   const [showPreview, setShowPreview] = useState(true);
+  const [showEditor, setShowEditor] = useState(false);
   const [showHtml, setShowHtml] = useState(false);
   const newsletterRef = useRef<HTMLDivElement>(null);
 
@@ -168,11 +169,10 @@ function App() {
         flexWrap: 'wrap'
       }}>
         <button 
-          className="btn btn-primary" 
-          onClick={() => setShowPreview(!showPreview)}
+          onClick={() => setShowEditor(!showEditor)}
           style={{
             padding: '12px 24px',
-            backgroundColor: showPreview ? '#990000' : '#666',
+            backgroundColor: showEditor ? '#990000' : '#666',
             color: 'white',
             border: 'none',
             borderRadius: '6px',
@@ -181,7 +181,7 @@ function App() {
             fontWeight: '600'
           }}
         >
-          {showPreview ? '📝 Show Editor' : '👁 Show Preview'}
+          {showEditor ? '🙈 Hide Editor' : '📝 Show Editor'}
         </button>
         
         <button 
@@ -226,9 +226,9 @@ function App() {
         padding: '0 20px'
       }}>
         {/* Editor Panel */}
-        {!showPreview && (
+        {showEditor && (
           <div style={{
-            flex: '1',
+            flex: showPreview ? '1' : '1',
             backgroundColor: 'white',
             borderRadius: '8px',
             padding: '20px',
@@ -243,22 +243,20 @@ function App() {
           </div>
         )}
 
-        {/* Preview Panel */}
-        {showPreview && (
-          <div style={{
-            flex: '1',
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            padding: '20px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            maxHeight: '80vh',
-            overflowY: 'auto'
-          }}>
-            <div ref={newsletterRef}>
-              <NewsletterPreview data={newsletterData} />
-            </div>
+        {/* Preview Panel - Always visible */}
+        <div style={{
+          flex: showEditor ? '1' : '1',
+          backgroundColor: 'white',
+          borderRadius: '8px',
+          padding: '20px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          maxHeight: '80vh',
+          overflowY: 'auto'
+        }}>
+          <div ref={newsletterRef}>
+            <NewsletterPreview data={newsletterData} />
           </div>
-        )}
+        </div>
       </div>
 
       {/* HTML Code Display */}
