@@ -174,6 +174,22 @@
 
 **Result**: Rich text editors now allow unlimited character input with proper typing functionality, and the newsletter header has a much more compact red background
 
+### Development Server Issue (2025-07-26)
+**Problem**: Vite development server reports "ready" but doesn't bind to ports properly
+- `npm run dev` shows "VITE ready at http://localhost:5175/" but connection fails
+- `curl` and browser connections to localhost fail (connection refused)
+- Affects both localhost and network IP addresses (192.168.1.40)
+- Build process works fine: `npm run build` succeeds
+- Issue appears to be system-level networking/firewall blocking local server binding
+
+**Workarounds**:
+1. **Direct file access**: Open `/Users/gg1900/newsletter_v3/dist/index.html` in browser (fully functional)
+2. **After restart**: Try `npm run dev` again - may be resolved after system restart
+3. **Alternative ports**: Try `npx vite --port 8080` or other ports
+4. **Network flag**: Use `npx vite --host` to expose on all interfaces
+
+**Status**: Newsletter builder is complete and functional via built files. Development server binding issue needs system restart or network troubleshooting.
+
 ### Completed Features
 - Responsive email newsletter template (mobile, tablet, desktop)
 - File System Access API for true file updates
