@@ -13,5 +13,12 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 600, // Increase limit to 600KB for rich text editor
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name].[hash].[ext]'
+      }
+    }
   },
+  base: './', // Use relative paths for static file deployment
 });
