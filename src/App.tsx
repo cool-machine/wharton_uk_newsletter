@@ -211,7 +211,7 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [hasUnsavedChanges, isNewFile, currentFileName]);
+  }, [hasUnsavedChanges, isNewFile, currentFileName, newFile, openFile, saveCurrentFile]);
 
   const copyToClipboard = () => {
     if (newsletterRef.current) {

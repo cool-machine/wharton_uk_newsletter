@@ -10,4 +10,7 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  build: {
+    chunkSizeWarningLimit: 600, // Increase limit to 600KB for rich text editor
+  },
 });
