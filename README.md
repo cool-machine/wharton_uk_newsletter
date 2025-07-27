@@ -184,7 +184,7 @@ The newsletter builder works on mobile devices:
 3. No setup required - works immediately
 
 ### **Option 2: GitHub Download**
-1. Share this repository link: https://github.com/cool-machine/newsletter_v3
+1. Share this repository link: https://github.com/cool-machine/wharton_uk_newsletter
 2. Click "Download" → "Download ZIP"
 3. Extract and open the HTML file
 
