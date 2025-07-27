@@ -190,11 +190,115 @@
 
 **Status**: Newsletter builder is complete and functional via built files. Development server binding issue needs system restart or network troubleshooting.
 
+### Latest Improvements (COMPLETED - 2025-07-27)
+
+### Enhanced Rich Text Editor with Font Sizes and Colors (COMPLETED - 2025-07-27)
+**Feature**: Added comprehensive font size and color options to all rich text editors throughout the application
+- **Font Size Options**: Dropdown selector with 7 different font sizes (8pt to 36pt) available in every rich text editor toolbar
+- **Color Options**: 
+  - **Quick Colors**: Black, Wharton Red (#990000), Wharton Blue (#011F5B) buttons for instant access
+  - **🎨 Color Palette**: Comprehensive 48-color grid including standard colors, Wharton brand colors, full spectrum of professional colors, and Material Design palette
+  - **Easy Selection**: Click-to-select with color previews and hover effects
+- **Enhanced Toolbar**: Font size dropdown, quick color buttons, color palette popup, plus all existing formatting options
+- **Universal Availability**: Available in ALL rich text sections (header title, newsletter title, greeting, signature, etc.)
+
+**Technical Implementation**:
+- Added font size detection for selected text - dropdown shows current size when text is selected
+- Comprehensive color palette with 48 professional colors organized in 8x6 grid
+- Smart click-outside-to-close functionality for color picker
+- CSS styling for color swatches with hover effects and proper positioning
+
+### Undo/Redo Functionality (COMPLETED - 2025-07-27)
+**Feature**: Added fully functional undo/redo buttons to all rich text editors
+- **↶ Undo Button**: Reverses the last formatting or text change
+- **↷ Redo Button**: Restores undone changes  
+- **Smart Integration**: Updates font size detection after undo/redo operations
+- **Visual Feedback**: Buttons show disabled state when at beginning/end of history
+- **History Management**: Maintains up to 50 content states with smart duplicate prevention
+
+**Technical Implementation**:
+- **Custom History System**: Implemented custom undo/redo using content history array instead of unreliable `document.execCommand('undo')`
+- **Debounced History**: Saves content 500ms after user stops typing (smooth typing) vs immediate save for formatting commands
+- **Smart State Management**: Prevents infinite loops during undo/redo operations, tracks history index properly
+- **Content Preservation**: Maintains cursor position and formatting during undo/redo operations
+
+### Fixed Cursor Jumping and Content Loading Issues (COMPLETED - 2025-07-27)
+**Issue**: Cursor was jumping during typing and content from saved JSON files caused rendering problems
+- **Root Causes**: 
+  1. `dangerouslySetInnerHTML` causing React re-renders that disrupted cursor position
+  2. JSON content format incompatibilities with contentEditable elements
+  3. History system interfering with normal typing flow
+
+**Complete Solution**:
+- **Removed `dangerouslySetInnerHTML`**: Replaced with direct DOM manipulation only when necessary
+- **Content Cleaning System**: Added `cleanContent()` function that normalizes HTML structure from saved JSON files
+- **Smart Content Loading**: Proper history reset when loading external content, cursor position preservation during updates
+- **Debounced History Saving**: Prevents cursor disruption during normal typing while maintaining undo/redo functionality
+
+**Technical Implementation**:
+- Enhanced content loading with cursor position preservation
+- Added content normalization for old/malformed HTML from saved files  
+- Implemented smart DOM updates that only occur when content actually differs
+- Proper cleanup and timeout management for history operations
+
+### Gmail-Optimized Email Export (COMPLETED - 2025-07-27)
+**Issue**: Gmail was folding/hiding parts of newsletter text and showing color inconsistencies
+- **Root Causes**: Gmail clips emails over ~102KB, strips external CSS, has font inheritance issues
+
+**Complete Gmail-Optimized Solution**:
+- **Proper Email DOCTYPE**: Uses email-standard XHTML DOCTYPE for maximum compatibility
+- **Gmail Anti-Blend Fixes**: Hidden spacer div prevents Gmail content blending, anti-text-size-adjust properties
+- **Fully Inline CSS**: Every element has explicit font-family and colors, no external CSS dependencies
+- **Table-Based Layout**: Pure table structure with proper email-safe attributes
+- **Mobile Responsive**: Optimized for Gmail mobile app and desktop versions
+
+**Key Features**:
+- **📧 Email Client Compatibility**: Gmail, Outlook, Apple Mail, Yahoo (desktop and mobile)
+- **🎨 Consistent Styling**: All fonts and colors explicitly declared on every element
+- **📱 Mobile Responsive**: Proper scaling and viewport handling
+- **🔧 Anti-Clipping**: Optimized structure prevents Gmail text folding
+
+**Technical Implementation**:
+- Complete rewrite of HTML export function with proper email DOCTYPE and structure
+- Gmail-specific CSS resets and font smoothing properties
+- Comprehensive inline styling system with explicit color hierarchy
+- Mobile-responsive classes and viewport optimization for email clients
+
+### Standalone Application Architecture (CURRENT - 2025-07-27)
+**Current State**: Fully functional standalone HTML newsletter builder
+- **Single File Application**: Complete newsletter builder in `complete-original-newsletter.html`
+- **No Dependencies**: Works offline, no server required, self-contained
+- **File Management**: Proper File System Access API integration with file handle persistence
+- **All Features**: Rich text editing, image upload, drag-and-drop, undo/redo, color/font options
+- **Export Options**: Gmail-optimized HTML export ready for email platforms
+
 ### Completed Features
-- Responsive email newsletter template (mobile, tablet, desktop)
-- File System Access API for true file updates
-- Drag-and-drop section reordering
-- Claude AI integration for alt text generation
-- Rich text editor with TipTap
-- Autosave functionality
-- Template management system
+- ✅ Responsive email newsletter template (mobile, tablet, desktop)
+- ✅ File System Access API for true file updates (load/save JSON templates)
+- ✅ Drag-and-drop section reordering with proper text selection
+- ✅ Claude AI integration for alt text generation
+- ✅ Rich text editor with comprehensive formatting options
+- ✅ Font size selector (8pt-36pt) and 48-color palette
+- ✅ Undo/Redo functionality with smart history management
+- ✅ Autosave functionality with localStorage backup
+- ✅ Template management system with proper file handle persistence
+- ✅ Gmail-optimized HTML export with anti-clipping measures
+- ✅ Image upload with dimension controls and aspect ratio management
+- ✅ Professional email structure with Wharton branding
+- ✅ Cursor position preservation and content loading from JSON files
+- ✅ Standalone deployment (no server dependencies)
+
+### Architecture Notes
+- **Main File**: `/Users/gg1900/newsletter_v3/complete-original-newsletter.html` - Complete standalone application
+- **React + Babel**: Uses CDN-loaded React with Babel for JSX compilation in browser
+- **File System Access API**: Modern file handling with fallback to download for unsupported browsers
+- **Email-Safe HTML**: Generates table-based, inline CSS HTML optimized for all email clients
+- **Responsive Design**: Mobile-first design that works across all devices and email clients
+
+### Usage Instructions
+1. **Open Application**: Open `complete-original-newsletter.html` directly in browser
+2. **Create Newsletter**: Use rich text editors with full formatting options
+3. **Save Template**: Click "💾 Save" to save as JSON template file
+4. **Load Template**: Click "📁 Open" to load existing JSON templates
+5. **Export for Email**: Click "📋 Copy HTML for NationBuilder" to get Gmail-optimized HTML
+6. **Team Sharing**: Host on GitHub Pages or share the HTML file directly

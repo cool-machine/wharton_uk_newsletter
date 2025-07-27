@@ -264,13 +264,13 @@ function App() {
           }]
         });
 
-        const writable = await fileHandle.createWritable();
+        const writable = await newFileHandle.createWritable();
         await writable.write(dataStr);
         await writable.close();
 
         // Update current file info
         setCurrentFileName(fileName);
-        setCurrentFilePath(fileHandle.name);
+        setCurrentFilePath(newFileHandle.name);
         setFileHandle(newFileHandle);
         setHasValidFileHandle(true);
         setIsNewFile(false);

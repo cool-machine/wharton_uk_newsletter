@@ -6,7 +6,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    host: '127.0.0.1', // Force IPv4 to fix localhost connection issues
+    host: '0.0.0.0', // Listen on all interfaces
+    strictPort: false,
   },
   optimizeDeps: {
     exclude: ['lucide-react'],
