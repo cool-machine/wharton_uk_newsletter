@@ -124,6 +124,30 @@ Use the **Signature** section at the bottom for:
    - Mobile and desktop versions
    - Proper rendering across all email clients
 
+---
+
+## 🎯 **NationBuilder Integration Guide**
+
+> ### 📧 **How to Send Your Newsletter Through NationBuilder**
+> 
+> **Step-by-Step Instructions:**
+> 
+> 1. **📋 Copy HTML**: In the newsletter builder, click **"📋 Copy HTML for NationBuilder"**
+> 
+> 2. **🌐 Open NationBuilder**: Go to your NationBuilder admin panel → Email → Create new email
+> 
+> 3. **🔧 Access Source Code**: In the NationBuilder editor, look for the **Source Code button** with the **`<>` symbol** (usually in the toolbar)
+> 
+> 4. **📝 Paste HTML**: Click the `<>` button, clear any existing content, and paste your copied HTML
+> 
+> 5. **✅ Save & Preview**: Click "Done" or "Save" to exit source code mode, then preview your email
+> 
+> 6. **📤 Send**: Your newsletter is now ready to send to your subscriber list!
+> 
+> **💡 Pro Tip**: Always use the source code editor (`<>`) rather than the visual editor to maintain proper formatting and styling.
+
+---
+
 ## 🎯 Pro Tips
 
 ### **Rich Text Editing**
