@@ -1,5 +1,7 @@
 # 📧 Professional Newsletter Builder
 
+**🚀 [Launch Newsletter Builder](https://cool-machine.github.io/wharton_uk_newsletter/) | 💻 [Try it Live](https://cool-machine.github.io/wharton_uk_newsletter/complete-original-newsletter.html)**
+
 A complete, self-contained HTML newsletter builder designed for **The Wharton Club of the United Kingdom**. Create professional newsletters with rich text editing, image management, and Gmail-optimized HTML export.
 
 ## 🚀 Quick Start
