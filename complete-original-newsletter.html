@@ -1871,65 +1871,13 @@ Please provide just the alt text without quotes or extra explanation.`;
             };
 
             const saveFile = async () => {
-                if (isNewFile) {
-                    // If it's a new file, prompt for name and location
-                    const name = prompt('Enter newsletter name:', fileName);
-                    if (!name) return;
+                if (isNewFile || !fileHandle) {
+                    // For new files or files without handle, behave like "Save As"
+                    return saveAsFile();
+                }
 
-                    const template = {
-                        name: name,
-                        data: data,
-                        createdAt: new Date().toISOString(),
-                        lastModified: new Date().toISOString()
-                    };
-
-                    const dataStr = JSON.stringify(template, null, 2);
-
-                    if (supportsFileSystemAccess()) {
-                        try {
-                            const newFileHandle = await window.showSaveFilePicker({
-                                suggestedName: `${name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`,
-                                types: [{
-                                    description: 'JSON files',
-                                    accept: { 'application/json': ['.json'] }
-                                }]
-                            });
-
-                            const writable = await newFileHandle.createWritable();
-                            await writable.write(dataStr);
-                            await writable.close();
-
-                            setFileName(name);
-                            setCurrentFilePath(newFileHandle.name);
-                            setFileHandle(newFileHandle);
-                            setIsNewFile(false);
-                            setLastSaved(new Date());
-                            setHasUnsavedChanges(false);
-                            
-                            alert(`Newsletter "${name}" saved successfully!`);
-                        } catch (error) {
-                            console.log('User cancelled save or error occurred');
-                        }
-                    } else {
-                        // Fallback to download
-                        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                        const url = URL.createObjectURL(dataBlob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = `${name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
-                        link.click();
-                        URL.revokeObjectURL(url);
-                        
-                        setFileName(name);
-                        setCurrentFilePath(link.download);
-                        setIsNewFile(false);
-                        setLastSaved(new Date());
-                        setHasUnsavedChanges(false);
-                        
-                        alert(`Newsletter "${name}" downloaded successfully!`);
-                    }
-                } else {
-                    // Update existing file
+                // Update existing file in place
+                try {
                     const template = {
                         name: fileName,
                         data: data,
@@ -1939,35 +1887,29 @@ Please provide just the alt text without quotes or extra explanation.`;
                     const dataStr = JSON.stringify(template, null, 2);
 
                     if (supportsFileSystemAccess() && fileHandle) {
-                        try {
-                            const writable = await fileHandle.createWritable();
-                            await writable.write(dataStr);
-                            await writable.close();
-                            
-                            setLastSaved(new Date());
-                            setHasUnsavedChanges(false);
-                            
-                            alert(`Newsletter "${fileName}" updated successfully!`);
-                        } catch (error) {
-                            console.error('Error updating file:', error);
-                            // Fallback to download if file handle is invalid
-                            saveAsFile();
-                        }
-                    } else {
-                        // Fallback to download
-                        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                        const url = URL.createObjectURL(dataBlob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = currentFilePath || `${fileName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
-                        link.click();
-                        URL.revokeObjectURL(url);
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(dataStr);
+                        await writable.close();
                         
                         setLastSaved(new Date());
                         setHasUnsavedChanges(false);
                         
-                        alert(`Newsletter "${fileName}" downloaded successfully!`);
+                        // Show brief success message
+                        const saveStatus = document.getElementById('saveStatus');
+                        if (saveStatus) {
+                            saveStatus.style.display = 'block';
+                            setTimeout(() => {
+                                if (saveStatus) saveStatus.style.display = 'none';
+                            }, 3000);
+                        }
+                    } else {
+                        // Fallback to download if file handle is not available
+                        return saveAsFile();
                     }
+                } catch (error) {
+                    console.error('Error saving file:', error);
+                    alert('Error saving file. Please try Save As instead.');
+                    return saveAsFile();
                 }
             };
 
