@@ -2080,7 +2080,23 @@ Please provide just the alt text without quotes or extra explanation.`;
             background-color: #ffffff;
         }
         
-        /* Responsive styles */
+        /* Desktop email clients - maximize space usage */
+        @media only screen and (min-width: 800px) {
+            .desktop-width {
+                width: 95% !important;
+                max-width: 800px !important;
+            }
+        }
+        
+        /* Tablet and smaller desktop email clients */
+        @media only screen and (max-width: 800px) and (min-width: 600px) {
+            .mobile-width {
+                width: 95% !important;
+                max-width: 95% !important;
+            }
+        }
+        
+        /* Enhanced responsive styles for mobile */
         @media only screen and (max-width: 600px) {
             .mobile-center {
                 text-align: center !important;
@@ -2088,6 +2104,35 @@ Please provide just the alt text without quotes or extra explanation.`;
             .mobile-width {
                 width: 100% !important;
                 max-width: 100% !important;
+            }
+            .mobile-padding {
+                padding: 16px !important;
+            }
+            .mobile-button {
+                width: 100% !important;
+                max-width: 280px !important;
+                margin: 12px auto !important;
+                display: block !important;
+                text-align: center !important;
+            }
+            .mobile-text {
+                font-size: 16px !important;
+                line-height: 1.5 !important;
+            }
+            .mobile-heading {
+                font-size: 20px !important;
+                line-height: 1.3 !important;
+            }
+        }
+        
+        /* Small mobile devices */
+        @media only screen and (max-width: 480px) {
+            .mobile-padding {
+                padding: 12px !important;
+            }
+            .mobile-button {
+                padding: 14px 20px !important;
+                font-size: 16px !important;
             }
         }
     </style>
@@ -2115,7 +2160,7 @@ Please provide just the alt text without quotes or extra explanation.`;
 
                 const generateGmailOptimizedContent = () => {
                     // Generate Gmail-safe HTML structure with all inline styles
-                    return `<table cellpadding="0" cellspacing="0" border="0" width="600" style="width: 600px; max-width: 600px; margin: 0 auto; background-color: #ffffff; font-family: Arial, Helvetica, sans-serif;" class="mobile-width">
+                    return `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; max-width: 800px; margin: 0 auto; background-color: #ffffff; font-family: Arial, Helvetica, sans-serif;" class="mobile-width">
     ${data.showHeader ? `<!-- Header -->
     <tr>
         <td style="background-color: #990000; color: #ffffff; padding: 12px 16px; text-align: center; font-family: Arial, Helvetica, sans-serif;">
@@ -2130,11 +2175,11 @@ Please provide just the alt text without quotes or extra explanation.`;
     
     ${data.showGreeting ? `<!-- Greeting -->
     <tr>
-        <td style="padding: 20px 16px; font-family: Arial, Helvetica, sans-serif;">
-            <div style="font-size: 18px; color: #333333; margin-bottom: 12px; font-weight: bold; line-height: 1.3;">
+        <td style="padding: 24px 20px; font-family: Arial, Helvetica, sans-serif;" class="mobile-padding">
+            <div style="font-size: 18px; color: #333333; margin-bottom: 12px; font-weight: bold; line-height: 1.3;" class="mobile-heading">
                 ${data.salutation || ''}
             </div>
-            <div style="color: #666666; line-height: 1.6; font-size: 14px; margin: 0 0 16px 0;">
+            <div style="color: #666666; line-height: 1.6; font-size: 15px; margin: 0 0 16px 0;" class="mobile-text">
                 ${data.greeting || ''}
             </div>
         </td>
@@ -2170,8 +2215,8 @@ Please provide just the alt text without quotes or extra explanation.`;
                 const generateSectionHTML = (section) => {
                     const titleAlignment = section.titleAlignment || 'left';
                     return `<tr>
-        <td style="padding: 20px 16px; font-family: Arial, Helvetica, sans-serif;">
-            <h2 style="font-size: 18px; color: #333333; margin: 0 0 12px 0; font-weight: bold; line-height: 1.3; text-align: ${titleAlignment};">${section.title}</h2>
+        <td style="padding: 24px 20px; font-family: Arial, Helvetica, sans-serif;" class="mobile-padding">
+            <h2 style="font-size: 20px; color: #333333; margin: 0 0 16px 0; font-weight: bold; line-height: 1.3; text-align: ${titleAlignment};" class="mobile-heading">${section.title}</h2>
             ${generateSectionContentHTML(section)}
         </td>
     </tr>`;
@@ -2179,12 +2224,12 @@ Please provide just the alt text without quotes or extra explanation.`;
 
                 const generateSectionContentHTML = (section) => {
                     // Handle the new generic section structure
-                    return `<div style="color: #666666; line-height: 1.6; font-size: 14px; margin: 0; font-family: Arial, sans-serif;">
-                        ${section.subtitle ? `<h3 style="font-size: 16px; color: #333333; margin: 0 0 12px 0; font-weight: bold; line-height: 1.3;">${section.subtitle}</h3>` : ''}
-                        ${section.imageUrl ? `<div style="margin-bottom: 16px; text-align: center;"><img src="${section.imageUrl}" alt="${section.imageAlt || ''}" style="max-width: 100%; height: auto; border-radius: 4px; border: 1px solid #ddd;"></div>` : ''}
-                        ${section.description ? `<div style="margin-bottom: ${section.url ? '16px' : '0'};">${section.description}</div>` : ''}
-                        ${section.url ? `<div style="margin-top: 16px; text-align: left;">
-                            <a href="${section.url}" style="display: inline-block; background-color: #990000; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif; border: none;">
+                    return `<div style="color: #666666; line-height: 1.6; font-size: 15px; margin: 0; font-family: Arial, sans-serif;" class="mobile-text">
+                        ${section.subtitle ? `<h3 style="font-size: 18px; color: #333333; margin: 0 0 14px 0; font-weight: bold; line-height: 1.3;" class="mobile-heading">${section.subtitle}</h3>` : ''}
+                        ${section.imageUrl ? `<div style="margin-bottom: 20px; text-align: center;"><img src="${section.imageUrl}" alt="${section.imageAlt || ''}" style="max-width: 100%; height: auto; border-radius: 6px; border: 1px solid #ddd;"></div>` : ''}
+                        ${section.description ? `<div style="margin-bottom: ${section.url ? '20px' : '0'};">${section.description}</div>` : ''}
+                        ${section.url ? `<div style="margin-top: 20px; text-align: left;">
+                            <a href="${section.url}" style="display: inline-block; background-color: #990000; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold; font-family: Arial, sans-serif; border: none; text-align: center; min-width: 120px;" class="mobile-button">
                                 ${section.buttonText || 'Learn More'}
                             </a>
                         </div>` : ''}
