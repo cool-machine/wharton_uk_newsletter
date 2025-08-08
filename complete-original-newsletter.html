@@ -718,12 +718,12 @@
             const [editorContent, setEditorContent] = useState(content || '');
             const [showColorPicker, setShowColorPicker] = useState(false);
             const [currentFontSize, setCurrentFontSize] = useState('');
-            const [history, setHistory] = useState([]);
-            const [historyIndex, setHistoryIndex] = useState(-1);
+            const [history, setHistory] = useState([content || '']);
+            const [historyIndex, setHistoryIndex] = useState(0);
             const editorRef = React.useRef(null);
             const isUndoRedoOperation = React.useRef(false);
             const saveHistoryTimeoutRef = React.useRef(null);
-            const lastSavedContent = React.useRef('');
+            const lastSavedContent = React.useRef(content || '');
 
             const saveToHistory = (content) => {
                 if (isUndoRedoOperation.current) return;
@@ -800,9 +800,11 @@
             };
 
             const executeCommand = (command, value = null) => {
-                document.execCommand(command, false, value);
-                // Save the result to history immediately for formatting commands
+                // Ensure editor is focused before executing command
                 if (editorRef.current) {
+                    editorRef.current.focus();
+                    document.execCommand(command, false, value);
+                    
                     const newContent = editorRef.current.innerHTML;
                     setEditorContent(newContent);
                     onChange && onChange(newContent);
@@ -811,8 +813,8 @@
                         clearTimeout(saveHistoryTimeoutRef.current);
                     }
                     saveToHistory(newContent);
+                    updateCurrentFormatting();
                 }
-                updateCurrentFormatting();
             };
 
             const insertLineBreak = () => {
@@ -1217,21 +1219,30 @@
                             <div className="toolbar-group">
                                 <button className="editor-btn" onClick={() => {
                                     if (editorRef.current) {
+                                        editorRef.current.focus();
                                         let content = editorRef.current.innerHTML;
-                                        // Remove extra line breaks and spaces
+                                        // Remove extra line breaks and spaces more aggressively
                                         content = content
                                             .replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br>') // Remove double line breaks
+                                            .replace(/<br\s*\/?>/g, ' ') // Convert remaining line breaks to spaces
                                             .replace(/(<\/p>)\s*(<p[^>]*>)/g, '$1$2') // Remove spaces between paragraphs
                                             .replace(/(<\/li>)\s*(<li[^>]*>)/g, '$1$2') // Remove spaces between list items
-                                            .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+                                            .replace(/\s{2,}/g, ' ') // Replace multiple spaces with single space
                                             .replace(/>\s+</g, '><') // Remove spaces between HTML tags
+                                            .replace(/(<p[^>]*>)\s+/g, '$1') // Remove spaces at start of paragraphs
+                                            .replace(/\s+(<\/p>)/g, '$1') // Remove spaces at end of paragraphs
                                             .trim();
+                                        // If content becomes empty, add a paragraph
+                                        if (!content || content === '<p></p>') {
+                                            content = '<p><br></p>';
+                                        }
                                         editorRef.current.innerHTML = content;
                                         setEditorContent(content);
                                         onChange && onChange(content);
                                         saveToHistory(content);
+                                        updatePlaceholderState();
                                     }
-                                }} title="Remove Extra Spaces">
+                                }} title="Remove Extra Spaces & Line Breaks">
                                     🗜️
                                 </button>
                             </div>
