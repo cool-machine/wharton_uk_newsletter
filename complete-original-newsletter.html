@@ -1623,6 +1623,8 @@
                 signature: true
             });
 
+            const [showAddSectionOptions, setShowAddSectionOptions] = useState(false);
+
             const toggleSection = (sectionName) => {
                 setCollapsedSections(prev => ({
                     ...prev,
@@ -2856,21 +2858,72 @@ Please provide just the alt text without quotes or extra explanation.`;
                                 </div>
                             ))}
 
-                            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+                            <div style={{ marginBottom: '20px' }}>
                                 <button 
                                     className="button-style"
-                                    style={{ backgroundColor: '#28a745', fontSize: '16px', padding: '12px 24px' }} 
-                                    onClick={() => addSection('rich-text')}
+                                    style={{ 
+                                        backgroundColor: '#007bff', 
+                                        fontSize: '16px', 
+                                        padding: '12px 24px',
+                                        marginBottom: showAddSectionOptions ? '12px' : '0'
+                                    }} 
+                                    onClick={() => setShowAddSectionOptions(!showAddSectionOptions)}
                                 >
-                                    ➕ Add Rich Text Section
+                                    ➕ Add Section {showAddSectionOptions ? '▼' : '▶'}
                                 </button>
-                                <button 
-                                    className="button-style"
-                                    style={{ backgroundColor: '#6f42c1', fontSize: '16px', padding: '12px 24px' }} 
-                                    onClick={() => addSection('custom')}
-                                >
-                                    ➕ Add Structured Section
-                                </button>
+                                
+                                {showAddSectionOptions && (
+                                    <div style={{ 
+                                        border: '1px solid #ddd', 
+                                        borderRadius: '8px', 
+                                        padding: '16px', 
+                                        backgroundColor: '#f8f9fa',
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                        gap: '12px'
+                                    }}>
+                                        <button 
+                                            className="button-style"
+                                            style={{ backgroundColor: '#28a745', fontSize: '14px', padding: '10px 16px' }} 
+                                            onClick={() => {
+                                                addSection('rich-text');
+                                                setShowAddSectionOptions(false);
+                                            }}
+                                        >
+                                            📝 Rich Text Section
+                                        </button>
+                                        <button 
+                                            className="button-style"
+                                            style={{ backgroundColor: '#6f42c1', fontSize: '14px', padding: '10px 16px' }} 
+                                            onClick={() => {
+                                                addSection('custom');
+                                                setShowAddSectionOptions(false);
+                                            }}
+                                        >
+                                            📋 Structured Section
+                                        </button>
+                                        <button 
+                                            className="button-style"
+                                            style={{ backgroundColor: '#17a2b8', fontSize: '14px', padding: '10px 16px' }} 
+                                            onClick={() => {
+                                                addSection('events');
+                                                setShowAddSectionOptions(false);
+                                            }}
+                                        >
+                                            🎯 Events Section
+                                        </button>
+                                        <button 
+                                            className="button-style"
+                                            style={{ backgroundColor: '#fd7e14', fontSize: '14px', padding: '10px 16px' }} 
+                                            onClick={() => {
+                                                addSection('alumni-spotlight');
+                                                setShowAddSectionOptions(false);
+                                            }}
+                                        >
+                                            ⭐ Alumni Spotlight
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Fixed Community Links */}
