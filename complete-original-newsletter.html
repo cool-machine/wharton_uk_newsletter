@@ -1524,7 +1524,7 @@
                             {data.sections.map(section => (
                                 <tr key={section.id}>
                                     <td style={styles.section} className="responsive-td">
-                                        <h2 style={{...styles.heading, textAlign: section.titleAlignment || 'left'}}>{section.title}</h2>
+                                        <h2 style={{...styles.heading, textAlign: section.titleAlignment || 'left'}} dangerouslySetInnerHTML={{ __html: section.title || '' }}></h2>
                                         {renderSectionContent(section)}
                                     </td>
                                 </tr>
