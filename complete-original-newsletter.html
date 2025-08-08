@@ -1217,6 +1217,25 @@
                             <button className="editor-btn" onClick={insertParagraph} title="New Paragraph">
                                 ¶
                             </button>
+                            <button className="editor-btn" onClick={() => {
+                                if (editorRef.current) {
+                                    let content = editorRef.current.innerHTML;
+                                    // Remove extra line breaks and spaces
+                                    content = content
+                                        .replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br>') // Remove double line breaks
+                                        .replace(/(<\/p>)\s*(<p[^>]*>)/g, '$1$2') // Remove spaces between paragraphs
+                                        .replace(/(<\/li>)\s*(<li[^>]*>)/g, '$1$2') // Remove spaces between list items
+                                        .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+                                        .replace(/>\s+</g, '><') // Remove spaces between HTML tags
+                                        .trim();
+                                    editorRef.current.innerHTML = content;
+                                    setEditorContent(content);
+                                    onChange && onChange(content);
+                                    saveToHistory(content);
+                                }
+                            }} title="Remove Extra Spaces">
+                                🗜️
+                            </button>
                         </div>
                         
                         <span style={{borderLeft: '1px solid #ddd', margin: '0 4px'}}></span>
