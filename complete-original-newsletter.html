@@ -998,263 +998,231 @@
             return (
                 <div className="rich-editor">
                     <div className="editor-toolbar">
-                        {/* History Group */}
-                        <div className="toolbar-group">
-                            <button 
-                                className="editor-btn" 
-                                onClick={handleUndo} 
-                                disabled={historyIndex <= 0}
-                                title="Undo"
-                            >
-                                ↶
-                            </button>
-                            <button 
-                                className="editor-btn" 
-                                onClick={handleRedo} 
-                                disabled={historyIndex >= history.length - 1}
-                                title="Redo"
-                            >
-                                ↷
-                            </button>
-                        </div>
-                        
-                        <span style={{borderLeft: '1px solid #ddd', margin: '0 4px'}}></span>
-                        
-                        {/* Text Style Group */}
-                        <div className="toolbar-group">
-                            <button className="editor-btn" onClick={() => executeCommand('bold')} title="Bold">
-                                <strong>B</strong>
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('italic')} title="Italic">
-                                <em>I</em>
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('underline')} title="Underline">
-                                <u>U</u>
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('strikeThrough')} title="Strikethrough">
-                                <s>S</s>
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('subscript')} title="Subscript">
-                                X₂
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('superscript')} title="Superscript">
-                                X²
-                            </button>
-                        </div>
-                        
-                        <span style={{borderLeft: '1px solid #ddd', margin: '0 4px'}}></span>
-                        
-                        {/* Font Group */}
-                        <div className="toolbar-group">
-                            <select 
-                                className="editor-select" 
-                                onChange={(e) => executeCommand('fontName', e.target.value)}
-                                title="Font Family"
-                                style={{minWidth: '120px'}}
-                            >
-                                <option value="">Font</option>
-                                <option value="Arial">Arial</option>
-                                <option value="Georgia">Georgia</option>
-                                <option value="Times New Roman">Times New Roman</option>
-                                <option value="Helvetica">Helvetica</option>
-                                <option value="Courier New">Courier New</option>
-                                <option value="Verdana">Verdana</option>
-                                <option value="Trebuchet MS">Trebuchet MS</option>
-                                <option value="Tahoma">Tahoma</option>
-                            </select>
+                        {/* Row 1: Essential Formatting */}
+                        <div style={{display: 'flex', gap: '4px', alignItems: 'center', marginBottom: '4px'}}>
+                            {/* History Group */}
+                            <div className="toolbar-group">
+                                <button 
+                                    className="editor-btn" 
+                                    onClick={handleUndo} 
+                                    disabled={historyIndex <= 0}
+                                    title="Undo"
+                                >
+                                    ↶
+                                </button>
+                                <button 
+                                    className="editor-btn" 
+                                    onClick={handleRedo} 
+                                    disabled={historyIndex >= history.length - 1}
+                                    title="Redo"
+                                >
+                                    ↷
+                                </button>
+                            </div>
                             
-                            <select 
-                                className="editor-select" 
-                                onChange={(e) => changeFontSize(e.target.value)}
-                                title="Font Size"
-                                value={currentFontSize}
-                            >
-                                <option value="">Size</option>
-                                <option value="1">8pt</option>
-                                <option value="2">10pt</option>
-                                <option value="3">12pt</option>
-                                <option value="4">14pt</option>
-                                <option value="5">18pt</option>
-                                <option value="6">24pt</option>
-                                <option value="7">36pt</option>
-                            </select>
-                        </div>
-
-                        <span style={{borderLeft: '1px solid #ddd', margin: '0 4px'}}></span>
-
-                        {/* Color Group */}
-                        <div className="toolbar-group">
-                            <button className="editor-btn" onClick={() => executeCommand('foreColor', '#000000')} title="Black Text">
-                                ⚫
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('foreColor', '#990000')} title="Wharton Red">
-                                🔴
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('foreColor', '#011F5B')} title="Wharton Blue">
-                                🔵
-                            </button>
-                        
-                        {/* Color Picker Button */}
-                        <div className="color-picker-container" style={{position: 'relative', display: 'inline-block'}}>
-                            <button 
-                                className="editor-btn" 
-                                onClick={() => setShowColorPicker(!showColorPicker)} 
-                                title="More Colors"
-                            >
-                                🎨
-                            </button>
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
                             
-                            {/* Color Grid */}
-                            <div className={`color-grid ${showColorPicker ? 'show' : ''}`}>
-                                <div style={{padding: '8px', fontSize: '12px', fontWeight: 'bold', borderBottom: '1px solid #ddd'}}>
-                                    Text Color
-                                </div>
-                                <div style={{display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '2px', padding: '8px'}}>
-                                    {colors.map((color, index) => (
-                                        <div
-                                            key={`text-${index}`}
-                                            className="color-swatch"
-                                            style={{ backgroundColor: color }}
-                                            onClick={() => changeTextColor(color)}
-                                            title={`Text: ${color}`}
-                                        />
-                                    ))}
-                                </div>
-                                <div style={{padding: '8px', fontSize: '12px', fontWeight: 'bold', borderBottom: '1px solid #ddd'}}>
-                                    Background Color
-                                </div>
-                                <div style={{display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '2px', padding: '8px'}}>
-                                    {colors.map((color, index) => (
-                                        <div
-                                            key={`bg-${index}`}
-                                            className="color-swatch"
-                                            style={{ backgroundColor: color }}
-                                            onClick={() => executeCommand('hiliteColor', color)}
-                                            title={`Background: ${color}`}
-                                        />
-                                    ))}
-                                </div>
+                            {/* Basic Text Style Group */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => executeCommand('bold')} title="Bold">
+                                    <strong>B</strong>
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('italic')} title="Italic">
+                                    <em>I</em>
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('underline')} title="Underline">
+                                    <u>U</u>
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('strikeThrough')} title="Strikethrough">
+                                    <s>S</s>
+                                </button>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+                            
+                            {/* Lists Group */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => executeCommand('insertUnorderedList')} title="Bullet Points">
+                                    •
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('insertOrderedList')} title="Numbered List">
+                                    1.
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('indent')} title="Increase Indent">
+                                    ⇥
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('outdent')} title="Decrease Indent">
+                                    ⇤
+                                </button>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+                            
+                            {/* Alignment Group */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => executeCommand('justifyLeft')} title="Align Left">
+                                    ⬅
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('justifyCenter')} title="Align Center">
+                                    ↔
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('justifyRight')} title="Align Right">
+                                    ➡
+                                </button>
                             </div>
                         </div>
+                        
+                        {/* Row 2: Advanced Formatting */}
+                        <div style={{display: 'flex', gap: '4px', alignItems: 'center', flexWrap: 'wrap'}}>
+                            {/* Font & Size Group */}
+                            <div className="toolbar-group">
+                                <select 
+                                    className="editor-select" 
+                                    onChange={(e) => executeCommand('fontName', e.target.value)}
+                                    title="Font Family"
+                                    style={{minWidth: '100px', fontSize: '12px'}}
+                                >
+                                    <option value="">Font</option>
+                                    <option value="Arial">Arial</option>
+                                    <option value="Georgia">Georgia</option>
+                                    <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Helvetica">Helvetica</option>
+                                    <option value="Verdana">Verdana</option>
+                                </select>
+                                
+                                <select 
+                                    className="editor-select" 
+                                    onChange={(e) => changeFontSize(e.target.value)}
+                                    title="Font Size"
+                                    value={currentFontSize}
+                                    style={{minWidth: '60px', fontSize: '12px'}}
+                                >
+                                    <option value="">Size</option>
+                                    <option value="1">8pt</option>
+                                    <option value="2">10pt</option>
+                                    <option value="3">12pt</option>
+                                    <option value="4">14pt</option>
+                                    <option value="5">18pt</option>
+                                    <option value="6">24pt</option>
+                                </select>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+
+                            {/* Color Group */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => executeCommand('foreColor', '#000000')} title="Black Text">
+                                    ⚫
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('foreColor', '#990000')} title="Wharton Red">
+                                    🔴
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('foreColor', '#011F5B')} title="Wharton Blue">
+                                    🔵
+                                </button>
+                        
+                                <div className="color-picker-container" style={{position: 'relative', display: 'inline-block'}}>
+                                    <button 
+                                        className="editor-btn" 
+                                        onClick={() => setShowColorPicker(!showColorPicker)} 
+                                        title="More Colors"
+                                    >
+                                        🎨
+                                    </button>
+                                    
+                                    {/* Color Grid */}
+                                    <div className={`color-grid ${showColorPicker ? 'show' : ''}`}>
+                                        <div style={{padding: '8px', fontSize: '12px', fontWeight: 'bold', borderBottom: '1px solid #ddd'}}>
+                                            Text Color
+                                        </div>
+                                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '2px', padding: '8px'}}>
+                                            {colors.map((color, index) => (
+                                                <div
+                                                    key={`text-${index}`}
+                                                    className="color-swatch"
+                                                    style={{ backgroundColor: color }}
+                                                    onClick={() => changeTextColor(color)}
+                                                    title={`Text: ${color}`}
+                                                />
+                                            ))}
+                                        </div>
+                                        <div style={{padding: '8px', fontSize: '12px', fontWeight: 'bold', borderBottom: '1px solid #ddd'}}>
+                                            Background Color
+                                        </div>
+                                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '2px', padding: '8px'}}>
+                                            {colors.map((color, index) => (
+                                                <div
+                                                    key={`bg-${index}`}
+                                                    className="color-swatch"
+                                                    style={{ backgroundColor: color }}
+                                                    onClick={() => executeCommand('hiliteColor', color)}
+                                                    title={`Background: ${color}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+                            
+                            {/* Special Formatting Group */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => executeCommand('subscript')} title="Subscript">
+                                    X₂
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('superscript')} title="Superscript">
+                                    X²
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('insertHorizontalRule')} title="Horizontal Line">
+                                    ―
+                                </button>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+                            
+                            {/* Actions Group */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => {
+                                    const url = prompt('Enter URL:');
+                                    if (url) executeCommand('createLink', url);
+                                }} title="Insert Link">
+                                    🔗
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('formatBlock', 'blockquote')} title="Block Quote">
+                                    ❝
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('removeFormat')} title="Clear Formatting">
+                                    🧹
+                                </button>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+                            
+                            {/* Spacing Controls */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => {
+                                    if (editorRef.current) {
+                                        let content = editorRef.current.innerHTML;
+                                        // Remove extra line breaks and spaces
+                                        content = content
+                                            .replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br>') // Remove double line breaks
+                                            .replace(/(<\/p>)\s*(<p[^>]*>)/g, '$1$2') // Remove spaces between paragraphs
+                                            .replace(/(<\/li>)\s*(<li[^>]*>)/g, '$1$2') // Remove spaces between list items
+                                            .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+                                            .replace(/>\s+</g, '><') // Remove spaces between HTML tags
+                                            .trim();
+                                        editorRef.current.innerHTML = content;
+                                        setEditorContent(content);
+                                        onChange && onChange(content);
+                                        saveToHistory(content);
+                                    }
+                                }} title="Remove Extra Spaces">
+                                    🗜️
+                                </button>
+                            </div>
                         </div>
 
-                        <span style={{borderLeft: '1px solid #ddd', margin: '0 4px'}}></span>
-                        
-                        {/* Alignment Group */}
-                        <div className="toolbar-group">
-                            <button className="editor-btn" onClick={() => executeCommand('justifyLeft')} title="Align Left">
-                                ⬅
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('justifyCenter')} title="Align Center">
-                                ↔
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('justifyRight')} title="Align Right">
-                                ➡
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('justifyFull')} title="Justify">
-                                ⬌
-                            </button>
-                        </div>
-                        
-                        <span style={{borderLeft: '1px solid #ddd', margin: '0 4px'}}></span>
-                        
-                        {/* Lists & Structure Group */}
-                        <div className="toolbar-group">
-                            <button className="editor-btn" onClick={() => executeCommand('insertUnorderedList')} title="Bullet Points">
-                                • 
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('insertOrderedList')} title="Numbered List">
-                                1.
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('indent')} title="Increase Indent">
-                                ⇥
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('outdent')} title="Decrease Indent">
-                                ⇤
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('insertHorizontalRule')} title="Horizontal Line">
-                                ―
-                            </button>
-                        </div>
-                        
-                        <span style={{borderLeft: '1px solid #ddd', margin: '0 4px'}}></span>
-                        
-                        {/* Spacing Group */}
-                        <div className="toolbar-group">
-                            <select 
-                                className="editor-select" 
-                                onChange={(e) => {
-                                    const selection = window.getSelection();
-                                    if (selection.rangeCount > 0) {
-                                        const range = selection.getRangeAt(0);
-                                        let element = range.commonAncestorContainer;
-                                        if (element.nodeType === Node.TEXT_NODE) {
-                                            element = element.parentElement;
-                                        }
-                                        while (element && element !== editorRef.current && !['P', 'DIV', 'SPAN'].includes(element.tagName)) {
-                                            element = element.parentElement;
-                                        }
-                                        if (element && element !== editorRef.current) {
-                                            element.style.lineHeight = e.target.value;
-                                        }
-                                    }
-                                }}
-                                title="Line Spacing"
-                                style={{minWidth: '80px'}}
-                            >
-                                <option value="">Line Height</option>
-                                <option value="1">Single</option>
-                                <option value="1.15">1.15</option>
-                                <option value="1.5">1.5</option>
-                                <option value="2">Double</option>
-                                <option value="2.5">2.5</option>
-                                <option value="3">Triple</option>
-                            </select>
-                            
-                            <button className="editor-btn" onClick={insertLineBreak} title="Line Break">
-                                ↵
-                            </button>
-                            <button className="editor-btn" onClick={insertParagraph} title="New Paragraph">
-                                ¶
-                            </button>
-                            <button className="editor-btn" onClick={() => {
-                                if (editorRef.current) {
-                                    let content = editorRef.current.innerHTML;
-                                    // Remove extra line breaks and spaces
-                                    content = content
-                                        .replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br>') // Remove double line breaks
-                                        .replace(/(<\/p>)\s*(<p[^>]*>)/g, '$1$2') // Remove spaces between paragraphs
-                                        .replace(/(<\/li>)\s*(<li[^>]*>)/g, '$1$2') // Remove spaces between list items
-                                        .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-                                        .replace(/>\s+</g, '><') // Remove spaces between HTML tags
-                                        .trim();
-                                    editorRef.current.innerHTML = content;
-                                    setEditorContent(content);
-                                    onChange && onChange(content);
-                                    saveToHistory(content);
-                                }
-                            }} title="Remove Extra Spaces">
-                                🗜️
-                            </button>
-                        </div>
-                        
-                        <span style={{borderLeft: '1px solid #ddd', margin: '0 4px'}}></span>
-                        
-                        {/* Actions Group */}
-                        <div className="toolbar-group">
-                            <button className="editor-btn" onClick={() => {
-                                const url = prompt('Enter URL:');
-                                if (url) executeCommand('createLink', url);
-                            }} title="Insert Link">
-                                🔗
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('formatBlock', 'blockquote')} title="Block Quote">
-                                ❝
-                            </button>
-                            <button className="editor-btn" onClick={() => executeCommand('removeFormat')} title="Clear Formatting">
-                                🧹
-                            </button>
-                        </div>
                     </div>
                     <div 
                         ref={editorRef}
@@ -2387,11 +2355,10 @@ Please provide just the alt text without quotes or extra explanation.`;
                         )}
 
                         <label className="label-style">Title:</label>
-                        <input
-                            className="input-style"
-                            value={item.title}
-                            onChange={(e) => updateItemInSection(section.id, itemIndex, 'title', e.target.value)}
-                            placeholder="Item title"
+                        <RichTextEditor
+                            content={item.title || ''}
+                            onChange={(content) => updateItemInSection(section.id, itemIndex, 'title', content)}
+                            placeholder="Item title..."
                         />
 
                         {(section.type === 'events' || section.type === 'partner-events') && (
@@ -2430,10 +2397,9 @@ Please provide just the alt text without quotes or extra explanation.`;
                         )}
 
                         <label className="label-style">Description:</label>
-                        <textarea
-                            className="textarea-style"
-                            value={item.description}
-                            onChange={(e) => updateItemInSection(section.id, itemIndex, 'description', e.target.value)}
+                        <RichTextEditor
+                            content={item.description || ''}
+                            onChange={(content) => updateItemInSection(section.id, itemIndex, 'description', content)}
                             placeholder="Description..."
                         />
 
@@ -2604,11 +2570,9 @@ Please provide just the alt text without quotes or extra explanation.`;
                                             <div className="drag-handle" title="Drag to reorder section">
                                                 ⋮⋮
                                             </div>
-                                            <input
-                                                className="input-style"
-                                                style={{ fontSize: '18px', fontWeight: '600', color: '#990000', marginBottom: '0' }}
-                                                value={section.title}
-                                                onChange={(e) => updateSection(section.id, { title: e.target.value })}
+                                            <RichTextEditor
+                                                content={section.title || ''}
+                                                onChange={(content) => updateSection(section.id, { title: content })}
                                                 placeholder="Section Title"
                                             />
                                             <select
@@ -2839,10 +2803,9 @@ Please provide just the alt text without quotes or extra explanation.`;
                                         <h4 style={{ margin: '0 0 12px 0', color: '#333' }}>{link.title}</h4>
                                         
                                         <label className="label-style">Description:</label>
-                                        <textarea
-                                            className="textarea-style"
-                                            value={link.description}
-                                            onChange={(e) => updateCommunityLink(index, 'description', e.target.value)}
+                                        <RichTextEditor
+                                            content={link.description || ''}
+                                            onChange={(content) => updateCommunityLink(index, 'description', content)}
                                             placeholder="Brief description..."
                                         />
                                         
