@@ -1979,14 +1979,19 @@ Please provide just the alt text without quotes or extra explanation.`;
                     return;
                 }
 
+                // Get current date for new newsletter
+                const now = new Date();
+                const currentMonth = now.toLocaleString('default', { month: 'long' });
+                const currentYear = now.getFullYear();
+
                 setData({
-                    headerTitle: '<p>March 2024 Newsletter</p>',
+                    headerTitle: `<p>${currentMonth} ${currentYear} Newsletter</p>`,
                     title: '<p>The Wharton Club of the United Kingdom Newsletter</p>',
-                    month: '<p>March</p>',
-                    year: '<p>2024</p>',
+                    month: `<p>${currentMonth}</p>`,
+                    year: `<p>${currentYear}</p>`,
                     salutation: '<p>{{recipient.first_name_or_friend}} --</p>',
                     greeting: '<p>We hope this newsletter finds you well. We\'re excited to share updates about our recent activities and upcoming events.</p>',
-                    sections: [],
+                    sections: [], // Start with empty sections for user to add
                     // Toggle controls for template sections
                     showHeader: true,
                     showGreeting: true,
@@ -2012,12 +2017,16 @@ Please provide just the alt text without quotes or extra explanation.`;
                     signature: '<p>Thank you again to all our event organizers and participants who made this year exceptional.</p><p>We look forward to building even more connections in the coming year!</p><p><strong>Warm regards,</strong></p><p><strong>George Gvishiani WG\'08</strong></p><p><em>President, The Wharton Club of the United Kingdom</em></p>'
                 });
                 
+                // Reset all file-related state
                 setFileName('Untitled Newsletter');
                 setCurrentFilePath('');
                 setFileHandle(null);
                 setIsNewFile(true);
                 setHasUnsavedChanges(false);
                 setLastSaved(null);
+                
+                // Show success message
+                alert(`New newsletter project created for ${currentMonth} ${currentYear}!`);
             };
 
             // Make functions globally available
@@ -2237,11 +2246,17 @@ Please provide just the alt text without quotes or extra explanation.`;
                 };
 
                 window.toggleEditor = () => {
-                    setShowEditor(prev => !prev);
-                    const editorPanel = document.getElementById('editorPanel');
-                    if (editorPanel) {
-                        editorPanel.style.display = editorPanel.style.display === 'none' ? 'block' : 'none';
-                    }
+                    setShowEditor(prev => {
+                        const newState = !prev;
+                        // Use React state to control visibility instead of direct DOM manipulation
+                        setTimeout(() => {
+                            const editorPanel = document.getElementById('editorPanel');
+                            if (editorPanel) {
+                                editorPanel.style.display = newState ? 'block' : 'none';
+                            }
+                        }, 0);
+                        return newState;
+                    });
                 };
 
                 // Update file name display and status
