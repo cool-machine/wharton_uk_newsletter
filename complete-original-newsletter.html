@@ -1422,82 +1422,60 @@
             };
 
             const renderSectionContent = (section) => {
-                switch (section.type) {
-                    case 'rich-text':
-                        return (
-                            <div>
-                                {section.imageUrl && (
-                                    <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-                                        <img 
-                                            src={section.imageUrl} 
-                                            alt={section.imageAlt || 'Section image'} 
-                                            className="responsive-image"
-                                            style={{ 
-                                                width: section.imageWidth ? `${section.imageWidth}px` : 'auto',
-                                                height: section.imageHeight ? `${section.imageHeight}px` : 'auto',
-                                                maxWidth: '100%', 
-                                                borderRadius: '4px',
-                                                border: '1px solid #ddd'
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                                <div 
-                                    className="responsive-text"
-                                    style={{ 
-                                        ...styles.text, 
-                                        margin: 0,
-                                        fontFamily: 'Arial, sans-serif'
-                                    }}
-                                    dangerouslySetInnerHTML={{ __html: section.richContent || '' }}
-                                />
-                                {section.sectionUrl && (
-                                    <div style={{ marginTop: '16px' }}>
-                                        <a href={section.sectionUrl} style={styles.link}>
-                                            Learn More →
-                                        </a>
-                                    </div>
-                                )}
-                            </div>
-                        );
+                return (
+                    <div>
+                        {/* Render subtitle if provided */}
+                        {section.subtitle && (
+                            <h3 style={{
+                                ...styles.subheading,
+                                marginTop: '0',
+                                marginBottom: '12px',
+                                fontSize: '18px',
+                                fontWeight: 'bold',
+                                color: '#333'
+                            }} dangerouslySetInnerHTML={{ __html: section.subtitle }}></h3>
+                        )}
 
-                    default:
-                        return (
-                            <>
-                                {section.items.map((item, index) => (
-                                    <div key={index} style={{ marginBottom: '16px' }}>
-                                        {section.type === 'partner-events' && item.partner && (
-                                            <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#666' }}>
-                                                Partner: {item.partner}
-                                            </p>
-                                        )}
-                                        {section.type === 'alumni-spotlight' && (
-                                            <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>
-                                                {item.name} {item.class && `(${item.class})`}
-                                            </p>
-                                        )}
-                                        <h3 style={styles.subheading} dangerouslySetInnerHTML={{ __html: item.title || '' }}></h3>
-                                        {(section.type === 'events' || section.type === 'partner-events') && (item.date || item.time) && (
-                                            <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#666' }}>
-                                                {item.date} {item.time && `at ${item.time}`}
-                                                {item.location && ` • ${item.location}`}
-                                            </p>
-                                        )}
-                                        <p style={styles.text} dangerouslySetInnerHTML={{ __html: item.description || '' }}></p>
-                                        {(item.registrationUrl && item.registrationUrl !== '#') && (
-                                            <a href={item.registrationUrl} className="responsive-button">Register →</a>
-                                        )}
-                                        {(item.url && item.url !== '#') && (
-                                            <a href={item.url} className="responsive-button">Learn more →</a>
-                                        )}
-                                        {(item.readMoreUrl && item.readMoreUrl !== '#') && (
-                                            <a href={item.readMoreUrl} className="responsive-button">Read more →</a>
-                                        )}
-                                    </div>
-                                ))}
-                            </>
-                        );
-                }
+                        {/* Render image if provided */}
+                        {section.imageUrl && (
+                            <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+                                <img 
+                                    src={section.imageUrl} 
+                                    alt={section.imageAlt || 'Section image'} 
+                                    className="responsive-image"
+                                    style={{ 
+                                        maxWidth: '100%', 
+                                        height: 'auto',
+                                        borderRadius: '4px',
+                                        border: '1px solid #ddd'
+                                    }}
+                                />
+                            </div>
+                        )}
+
+                        {/* Render description if provided */}
+                        {section.description && (
+                            <div 
+                                className="responsive-text"
+                                style={{ 
+                                    ...styles.text, 
+                                    marginBottom: section.url ? '16px' : '0',
+                                    fontFamily: 'Arial, sans-serif'
+                                }}
+                                dangerouslySetInnerHTML={{ __html: section.description }}
+                            />
+                        )}
+
+                        {/* Render URL link if provided */}
+                        {section.url && (
+                            <div style={{ marginTop: '16px' }}>
+                                <a href={section.url} style={styles.link}>
+                                    Learn More →
+                                </a>
+                            </div>
+                        )}
+                    </div>
+                );
             };
 
             return (
@@ -2655,22 +2633,9 @@ Please provide just the alt text without quotes or extra explanation.`;
                                             <div className="drag-handle" title="Drag to reorder section">
                                                 ⋮⋮
                                             </div>
-                                            <RichTextEditor
-                                                content={section.title || ''}
-                                                onChange={(content) => updateSection(section.id, { title: content })}
-                                                placeholder="Section Title"
-                                            />
-                                            <select
-                                                className="input-style"
-                                                style={{ fontSize: '14px', padding: '6px', marginBottom: '0', minWidth: '80px' }}
-                                                value={section.titleAlignment || 'left'}
-                                                onChange={(e) => updateSection(section.id, { titleAlignment: e.target.value })}
-                                                title="Title alignment"
-                                            >
-                                                <option value="left">◀ Left</option>
-                                                <option value="center">⬤ Center</option>
-                                                <option value="right">▶ Right</option>
-                                            </select>
+                                            <span style={{ fontWeight: 'bold', color: '#6c757d' }}>
+                                                Section #{sectionIndex + 1}
+                                            </span>
                                         </div>
                                         <div style={{ display: 'flex', gap: '4px' }}>
                                             <button
@@ -2701,160 +2666,85 @@ Please provide just the alt text without quotes or extra explanation.`;
                                         </div>
                                     </div>
 
-                                    <label className="label-style">Section Type:</label>
-                                    <select
+                                    {/* Title Field (Optional) */}
+                                    <label className="label-style">Title (optional):</label>
+                                    <RichTextEditor
+                                        content={section.title || ''}
+                                        onChange={(content) => updateSection(section.id, { title: content })}
+                                        placeholder="Enter section title (leave blank to omit)"
+                                    />
+
+                                    {/* Subtitle Field (Optional) */}
+                                    <label className="label-style">Sub-title (optional):</label>
+                                    <RichTextEditor
+                                        content={section.subtitle || ''}
+                                        onChange={(content) => updateSection(section.id, { subtitle: content })}
+                                        placeholder="Enter section subtitle (leave blank to omit)"
+                                    />
+
+                                    {/* Description Field (Optional) */}
+                                    <label className="label-style">Description (optional):</label>
+                                    <RichTextEditor
+                                        content={section.description || ''}
+                                        onChange={(content) => updateSection(section.id, { description: content })}
+                                        placeholder="Enter section description (leave blank to omit)"
+                                    />
+
+                                    {/* Image Upload (Optional) */}
+                                    <label className="label-style">Image (optional):</label>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                handleImageUpload(section.id, file);
+                                            }
+                                        }}
                                         className="input-style"
-                                        value={section.type}
-                                        onChange={(e) => updateSection(section.id, { type: e.target.value })}
-                                    >
-                                        <option value="custom">Custom</option>
-                                        <option value="rich-text">Rich Text Content</option>
-                                        <option value="highlights">Recent Highlights</option>
-                                        <option value="events">Events</option>
-                                        <option value="partner-events">Partner Events</option>
-                                        <option value="alumni-spotlight">Alumni Spotlight</option>
-                                        <option value="community-links">Community Links</option>
-                                    </select>
+                                    />
 
-                                    {section.type === 'rich-text' ? (
-                                        <div>
-                                            <label className="label-style">Content:</label>
-                                            <RichTextEditor
-                                                content={section.richContent || ''}
-                                                onChange={(content) => updateSection(section.id, { richContent: content })}
-                                                placeholder="Enter your content here..."
-                                            />
-
-                                            <label className="label-style">Optional URL:</label>
-                                            <input
-                                                className="input-style"
-                                                value={section.sectionUrl || ''}
-                                                onChange={(e) => updateSection(section.id, { sectionUrl: e.target.value })}
-                                                placeholder="https://example.com (optional)"
-                                            />
-
-                                            <label className="label-style">Image Upload:</label>
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) {
-                                                        handleImageUpload(section.id, file);
-                                                    }
+                                    {section.imageUrl && (
+                                        <div style={{ marginTop: '12px' }}>
+                                            <img
+                                                src={section.imageUrl}
+                                                alt={section.imageAlt || 'Section image'}
+                                                style={{
+                                                    maxWidth: '200px',
+                                                    maxHeight: '200px',
+                                                    display: 'block',
+                                                    marginBottom: '8px',
+                                                    border: '1px solid #ccc',
+                                                    borderRadius: '4px'
                                                 }}
-                                                className="input-style"
                                             />
-
-                                            {section.imageUrl && (
-                                                <div style={{ marginTop: '12px' }}>
-                                                    <img 
-                                                        src={section.imageUrl} 
-                                                        alt={section.imageAlt || 'Uploaded image'} 
-                                                        style={{ 
-                                                            width: section.imageWidth ? `${section.imageWidth}px` : 'auto',
-                                                            height: section.imageHeight ? `${section.imageHeight}px` : 'auto',
-                                                            maxWidth: '400px',
-                                                            maxHeight: '300px',
-                                                            borderRadius: '4px',
-                                                            border: '1px solid #ddd',
-                                                            marginBottom: '8px'
-                                                        }}
-                                                    />
-                                                    
-                                                    <div>
-                                                        <label className="label-style">Image Dimensions:</label>
-                                                        <div className="flex-row" style={{ marginBottom: '12px' }}>
-                                                            <div className="flex-1">
-                                                                <label style={{ fontSize: '12px', marginBottom: '4px', display: 'block' }}>Width (px):</label>
-                                                                <input
-                                                                    type="number"
-                                                                    className="input-style"
-                                                                    value={section.imageWidth || ''}
-                                                                    onChange={(e) => {
-                                                                        const newWidth = parseInt(e.target.value) || 0;
-                                                                        updateSection(section.id, { imageWidth: newWidth });
-                                                                    }}
-                                                                    placeholder="Width"
-                                                                    min="50"
-                                                                    max="600"
-                                                                />
-                                                            </div>
-                                                            <div className="flex-1">
-                                                                <label style={{ fontSize: '12px', marginBottom: '4px', display: 'block' }}>Height (px):</label>
-                                                                <input
-                                                                    type="number"
-                                                                    className="input-style"
-                                                                    value={section.imageHeight || ''}
-                                                                    onChange={(e) => {
-                                                                        const newHeight = parseInt(e.target.value) || 0;
-                                                                        updateSection(section.id, { imageHeight: newHeight });
-                                                                    }}
-                                                                    placeholder="Height"
-                                                                    min="50"
-                                                                    max="400"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                                                            <button
-                                                                className="button-style"
-                                                                style={{ backgroundColor: '#17a2b8', fontSize: '12px' }}
-                                                                onClick={() => updateSection(section.id, { imageWidth: 400, imageHeight: 300 })}
-                                                            >
-                                                                📐 Reset Size
-                                                            </button>
-                                                            <button
-                                                                className="button-style"
-                                                                style={{ backgroundColor: '#28a745', fontSize: '12px' }}
-                                                                onClick={() => updateSection(section.id, { imageWidth: 300, imageHeight: 200 })}
-                                                            >
-                                                                📱 Email Size
-                                                            </button>
-                                                        </div>
-
-                                                        <label className="label-style">Image Alt Text:</label>
-                                                        <input
-                                                            className="input-style"
-                                                            value={section.imageAlt || ''}
-                                                            onChange={(e) => updateSection(section.id, { imageAlt: e.target.value })}
-                                                            placeholder="Describe the image for accessibility"
-                                                        />
-                                                        <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                                                            <button
-                                                                className="button-style"
-                                                                style={{ backgroundColor: '#6f42c1', fontSize: '12px' }}
-                                                                onClick={() => generateAltTextWithClaude(section)}
-                                                            >
-                                                                🤖 Generate Alt Text with Claude
-                                                            </button>
-                                                            <button
-                                                                className="button-style"
-                                                                style={{ backgroundColor: '#dc3545', fontSize: '12px' }}
-                                                                onClick={() => updateSection(section.id, { imageUrl: '', imageAlt: '', imageWidth: undefined, imageHeight: undefined })}
-                                                            >
-                                                                🗑 Remove Image
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <>
-                                            {section.items.map((item, itemIndex) => 
-                                                renderSectionItem(section, item, itemIndex)
-                                            )}
-
-                                            <button 
-                                                className="button-style" 
-                                                onClick={() => addItemToSection(section.id)}
+                                            <input
+                                                className="input-style"
+                                                value={section.imageAlt || ''}
+                                                onChange={(e) => updateSection(section.id, { imageAlt: e.target.value })}
+                                                placeholder="Alt text for accessibility (optional)"
+                                                style={{ fontSize: '14px', marginTop: '8px' }}
+                                            />
+                                            <button
+                                                className="button-style"
+                                                style={{ backgroundColor: '#dc3545', fontSize: '12px', padding: '4px 8px', marginTop: '8px' }}
+                                                onClick={() => updateSection(section.id, { imageUrl: '', imageAlt: '' })}
                                             >
-                                                ➕ Add Item
+                                                Remove Image
                                             </button>
-                                        </>
+                                        </div>
                                     )}
+
+                                    {/* URL Field (Optional) */}
+                                    <label className="label-style">URL (optional):</label>
+                                    <input
+                                        className="input-style"
+                                        value={section.url || ''}
+                                        onChange={(e) => updateSection(section.id, { url: e.target.value })}
+                                        placeholder="https://example.com (leave blank to omit link)"
+                                    />
+
+
                                 </div>
                             ))}
 
