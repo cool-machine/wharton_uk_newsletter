@@ -1623,7 +1623,7 @@
                 signature: true
             });
 
-            const [showAddSectionOptions, setShowAddSectionOptions] = useState(false);
+
 
             const toggleSection = (sectionName) => {
                 setCollapsedSections(prev => ({
@@ -1680,19 +1680,19 @@
                 return 'showSaveFilePicker' in window;
             };
 
-            const addSection = (type = 'custom') => {
+            const addSection = () => {
                 const newSection = {
                     id: Date.now().toString(),
-                    type: type,
-                    title: type === 'rich-text' ? 'New Rich Text Section' : 'New Section',
-                    titleAlignment: 'left', // Default alignment
-                    items: type === 'rich-text' ? [] : [{ title: '', description: '' }],
-                    richContent: type === 'rich-text' ? '' : undefined,
-                    sectionUrl: type === 'rich-text' ? '' : undefined,
-                    imageUrl: type === 'rich-text' ? '' : undefined,
-                    imageAlt: type === 'rich-text' ? '' : undefined,
-                    imageWidth: type === 'rich-text' ? undefined : undefined,
-                    imageHeight: type === 'rich-text' ? undefined : undefined
+                    type: 'generic',
+                    title: '', // User-defined section title (optional)
+                    subtitle: '', // User-defined section subtitle (optional)
+                    description: '', // User-defined section description (optional)
+                    imageUrl: '', // User-uploaded image (optional)
+                    imageAlt: '', // Alt text for image (optional)
+                    imageWidth: undefined, // Image width (auto-calculated)
+                    imageHeight: undefined, // Image height (auto-calculated)
+                    url: '', // User-defined URL (optional, won't show if empty)
+                    titleAlignment: 'left' // Default alignment
                 };
                 setData(prev => ({
                     ...prev,
@@ -2864,66 +2864,12 @@ Please provide just the alt text without quotes or extra explanation.`;
                                     style={{ 
                                         backgroundColor: '#007bff', 
                                         fontSize: '16px', 
-                                        padding: '12px 24px',
-                                        marginBottom: showAddSectionOptions ? '12px' : '0'
+                                        padding: '12px 24px'
                                     }} 
-                                    onClick={() => setShowAddSectionOptions(!showAddSectionOptions)}
+                                    onClick={() => addSection('generic')}
                                 >
-                                    ➕ Add Section {showAddSectionOptions ? '▼' : '▶'}
+                                    ➕ Add Section
                                 </button>
-                                
-                                {showAddSectionOptions && (
-                                    <div style={{ 
-                                        border: '1px solid #ddd', 
-                                        borderRadius: '8px', 
-                                        padding: '16px', 
-                                        backgroundColor: '#f8f9fa',
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                                        gap: '12px'
-                                    }}>
-                                        <button 
-                                            className="button-style"
-                                            style={{ backgroundColor: '#28a745', fontSize: '14px', padding: '10px 16px' }} 
-                                            onClick={() => {
-                                                addSection('rich-text');
-                                                setShowAddSectionOptions(false);
-                                            }}
-                                        >
-                                            📝 Rich Text Section
-                                        </button>
-                                        <button 
-                                            className="button-style"
-                                            style={{ backgroundColor: '#6f42c1', fontSize: '14px', padding: '10px 16px' }} 
-                                            onClick={() => {
-                                                addSection('custom');
-                                                setShowAddSectionOptions(false);
-                                            }}
-                                        >
-                                            📋 Structured Section
-                                        </button>
-                                        <button 
-                                            className="button-style"
-                                            style={{ backgroundColor: '#17a2b8', fontSize: '14px', padding: '10px 16px' }} 
-                                            onClick={() => {
-                                                addSection('events');
-                                                setShowAddSectionOptions(false);
-                                            }}
-                                        >
-                                            🎯 Events Section
-                                        </button>
-                                        <button 
-                                            className="button-style"
-                                            style={{ backgroundColor: '#fd7e14', fontSize: '14px', padding: '10px 16px' }} 
-                                            onClick={() => {
-                                                addSection('alumni-spotlight');
-                                                setShowAddSectionOptions(false);
-                                            }}
-                                        >
-                                            ⭐ Alumni Spotlight
-                                        </button>
-                                    </div>
-                                )}
                             </div>
 
                             {/* Fixed Community Links */}
