@@ -1476,7 +1476,7 @@
                                                 {item.name} {item.class && `(${item.class})`}
                                             </p>
                                         )}
-                                        <h3 style={styles.subheading}>{item.title}</h3>
+                                        <h3 style={styles.subheading} dangerouslySetInnerHTML={{ __html: item.title || '' }}></h3>
                                         {(section.type === 'events' || section.type === 'partner-events') && (item.date || item.time) && (
                                             <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#666' }}>
                                                 {item.date} {item.time && `at ${item.time}`}
