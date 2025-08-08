@@ -1483,7 +1483,7 @@
                                                 {item.location && ` • ${item.location}`}
                                             </p>
                                         )}
-                                        <p style={styles.text}>{item.description}</p>
+                                        <p style={styles.text} dangerouslySetInnerHTML={{ __html: item.description || '' }}></p>
                                         {(item.registrationUrl && item.registrationUrl !== '#') && (
                                             <a href={item.registrationUrl} className="responsive-button">Register →</a>
                                         )}
