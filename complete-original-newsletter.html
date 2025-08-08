@@ -413,8 +413,8 @@
         }
 
         .editor-content p {
-            margin-bottom: 16px;
-            line-height: 1.6;
+            margin-bottom: 8px;
+            line-height: 1.2;
         }
 
         .editor-content:empty:before {
@@ -443,8 +443,8 @@
         
         .editor-content ul li,
         .editor-content ol li {
-            margin-bottom: 8px;
-            line-height: 1.6;
+            margin-bottom: 4px;
+            line-height: 1.2;
         }
         
         .editor-content blockquote {
@@ -724,6 +724,7 @@
             const isUndoRedoOperation = React.useRef(false);
             const saveHistoryTimeoutRef = React.useRef(null);
             const lastSavedContent = React.useRef(content || '');
+            const emitChangeTimeoutRef = React.useRef(null);
 
             const saveToHistory = (content) => {
                 if (isUndoRedoOperation.current) return;
@@ -780,8 +781,31 @@
             const handleContentChange = (e) => {
                 const rawContent = e.target.innerHTML;
                 const cleanedContent = cleanContent(rawContent);
+                // Keep DOM in sync with cleaned HTML to minimize later diffs while preserving caret
+                if (editorRef.current && editorRef.current.innerHTML !== cleanedContent) {
+                    const selection = window.getSelection();
+                    let range = null;
+                    if (selection && selection.rangeCount) {
+                        range = selection.getRangeAt(0).cloneRange();
+                    }
+                    editorRef.current.innerHTML = cleanedContent;
+                    if (range) {
+                        try {
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        } catch (e) {
+                            // Fallback: place caret at end
+                            const newRange = document.createRange();
+                            newRange.selectNodeContents(editorRef.current);
+                            newRange.collapse(false);
+                            selection.removeAllRanges();
+                            selection.addRange(newRange);
+                        }
+                    }
+                }
+
                 setEditorContent(cleanedContent);
-                onChange && onChange(cleanedContent);
+                emitChangeDebounced(cleanedContent);
                 debouncedSaveToHistory(cleanedContent); // Use debounced save for typing
                 updateCurrentFormatting();
                 updatePlaceholderState();
@@ -807,7 +831,7 @@
                     
                     const newContent = editorRef.current.innerHTML;
                     setEditorContent(newContent);
-                    onChange && onChange(newContent);
+                    emitChangeDebounced(newContent);
                     // Clear any pending debounced save and save immediately for formatting
                     if (saveHistoryTimeoutRef.current) {
                         clearTimeout(saveHistoryTimeoutRef.current);
@@ -892,7 +916,7 @@
                     
                     const previousContent = history[historyIndex - 1];
                     setEditorContent(previousContent);
-                    onChange && onChange(previousContent);
+                    emitChangeDebounced(previousContent);
                     setHistoryIndex(historyIndex - 1);
                     lastSavedContent.current = previousContent;
                     
@@ -919,7 +943,7 @@
                     
                     const nextContent = history[historyIndex + 1];
                     setEditorContent(nextContent);
-                    onChange && onChange(nextContent);
+                    emitChangeDebounced(nextContent);
                     setHistoryIndex(historyIndex + 1);
                     lastSavedContent.current = nextContent;
                     
@@ -959,7 +983,8 @@
                 // Update editor DOM content to match, but only if it's actually different
                 if (editorRef.current) {
                     const currentHTML = editorRef.current.innerHTML;
-                    if (currentHTML !== cleanedContent) {
+                    const normalizedCurrent = cleanContent(currentHTML || '');
+                    if (normalizedCurrent !== cleanedContent) {
                         isUndoRedoOperation.current = true;
                         
                         // Save cursor position
@@ -1008,8 +1033,20 @@
                     if (saveHistoryTimeoutRef.current) {
                         clearTimeout(saveHistoryTimeoutRef.current);
                     }
+                    if (emitChangeTimeoutRef.current) {
+                        clearTimeout(emitChangeTimeoutRef.current);
+                    }
                 };
-            }, [showColorPicker]);
+            }, []);
+
+            const emitChangeDebounced = (val) => {
+                if (emitChangeTimeoutRef.current) {
+                    clearTimeout(emitChangeTimeoutRef.current);
+                }
+                emitChangeTimeoutRef.current = setTimeout(() => {
+                    onChange && onChange(val);
+                }, 300);
+            };
 
             return (
                 <div className="rich-editor">
@@ -1221,28 +1258,49 @@
                                     if (editorRef.current) {
                                         editorRef.current.focus();
                                         let content = editorRef.current.innerHTML;
-                                        // Remove extra line breaks and spaces more aggressively
+                                        // Remove extra line breaks and spaces very aggressively
                                         content = content
+                                            // First handle paragraph breaks and margins
+                                            .replace(/<p[^>]*style="[^"]*margin[^"]*"[^>]*>/g, '<p>') // Remove margin styles from p tags
+                                            .replace(/<p[^>]*style="[^"]*line-height[^"]*"[^>]*>/g, '<p>') // Remove line-height styles from p tags
+                                            .replace(/<div[^>]*style="[^"]*line-height[^"]*"[^>]*>/g, '<div>') // Remove line-height from div tags
+                                            // Handle line breaks
                                             .replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br>') // Remove double line breaks
-                                            .replace(/<br\s*\/?>/g, ' ') // Convert remaining line breaks to spaces
-                                            .replace(/(<\/p>)\s*(<p[^>]*>)/g, '$1$2') // Remove spaces between paragraphs
-                                            .replace(/(<\/li>)\s*(<li[^>]*>)/g, '$1$2') // Remove spaces between list items
+                                            .replace(/<br\s*\/?>/g, ' ') // Convert all remaining line breaks to spaces
+                                            // Handle paragraph spacing
+                                            .replace(/(<\/p>)\s*(<p[^>]*>)/g, '$1 $2') // Add single space between paragraphs
+                                            .replace(/(<p[^>]*>)\s*<\/p>/g, '') // Remove empty paragraphs
+                                            // Handle list spacing  
+                                            .replace(/(<\/li>)\s*(<li[^>]*>)/g, '$1 $2') // Add single space between list items
+                                            // Handle general spacing
                                             .replace(/\s{2,}/g, ' ') // Replace multiple spaces with single space
                                             .replace(/>\s+</g, '><') // Remove spaces between HTML tags
                                             .replace(/(<p[^>]*>)\s+/g, '$1') // Remove spaces at start of paragraphs
                                             .replace(/\s+(<\/p>)/g, '$1') // Remove spaces at end of paragraphs
+                                            .replace(/(<div[^>]*>)\s+/g, '$1') // Remove spaces at start of divs
+                                            .replace(/\s+(<\/div>)/g, '$1') // Remove spaces at end of divs
+                                            // Final cleanup
+                                            .replace(/\s+$/, '') // Remove trailing spaces
+                                            .replace(/^\s+/, '') // Remove leading spaces
                                             .trim();
+                                        
                                         // If content becomes empty, add a paragraph
-                                        if (!content || content === '<p></p>') {
+                                        if (!content || content === '<p></p>' || content === '<div></div>') {
                                             content = '<p><br></p>';
                                         }
+                                        
+                                        // Ensure content has proper structure
+                                        if (content && !content.match(/^<(p|div)/)) {
+                                            content = `<p>${content}</p>`;
+                                        }
+                                        
                                         editorRef.current.innerHTML = content;
                                         setEditorContent(content);
-                                        onChange && onChange(content);
+                                        emitChangeDebounced(content);
                                         saveToHistory(content);
                                         updatePlaceholderState();
                                     }
-                                }} title="Remove Extra Spaces & Line Breaks">
+                                }} title="Remove All Spacing & Compact Text">
                                     🗜️
                                 </button>
                             </div>
@@ -2173,16 +2231,16 @@ Please provide just the alt text without quotes or extra explanation.`;
 
                 const generateSectionContentHTML = (section) => {
                     if (section.type === 'rich-text') {
-                        return `<div style="color: #666666; line-height: 1.6; font-size: 14px; margin: 0;">
-                            ${section.imageUrl ? `<div style="margin-bottom: 16px; text-align: center;"><img src="${section.imageUrl}" alt="${section.imageAlt || ''}" style="max-width: 100%; height: auto; border-radius: 4px;"></div>` : ''}
+                        return `<div style="color: #666666; line-height: 1.2; font-size: 14px; margin: 0;">
+                            ${section.imageUrl ? `<div style="margin-bottom: 8px; text-align: center;"><img src="${section.imageUrl}" alt="${section.imageAlt || ''}" style="max-width: 100%; height: auto; border-radius: 4px;"></div>` : ''}
                             ${section.richContent || ''}
-                            ${section.sectionUrl ? `<div style="margin-top: 16px;"><a href="${section.sectionUrl}" style="color: #990000; text-decoration: none;">Learn More →</a></div>` : ''}
+                            ${section.sectionUrl ? `<div style="margin-top: 8px;"><a href="${section.sectionUrl}" style="color: #990000; text-decoration: none;">Learn More →</a></div>` : ''}
                         </div>`;
                     }
                     
                     return section.items.map(item => `<div style="margin-bottom: 16px; padding: 12px; background-color: #f9f9f9; border-radius: 4px; border: 2px solid #990000;">
-                        <h3 style="font-size: 16px; color: #333333; margin: 0 0 8px 0; font-weight: 600; line-height: 1.3;">${item.title}</h3>
-                        <p style="color: #666666; line-height: 1.6; font-size: 14px; margin: 0;">${item.description}</p>
+                        <div style="font-size: 16px; color: #333333; margin: 0 0 8px 0; font-weight: 600; line-height: 1.2;">${item.title}</div>
+                        <div style="color: #666666; line-height: 1.2; font-size: 14px; margin: 0;">${item.description}</div>
                         ${item.url ? `<a href="${item.url}" style="display: inline-block; background-color: #011F5B; color: #ffffff; padding: 10px 16px; text-decoration: none; border-radius: 4px; margin-top: 8px; font-size: 14px; font-weight: bold;">Learn More</a>` : ''}
                     </div>`).join('');
                 };
@@ -2192,8 +2250,8 @@ Please provide just the alt text without quotes or extra explanation.`;
         <td style="padding: 20px 16px; font-family: Arial, Helvetica, sans-serif;">
             <h2 style="font-size: 18px; color: #333333; margin: 0 0 12px 0; font-weight: bold; line-height: 1.3;">Join Our Communities</h2>
             ${data.communityLinks.map(link => `<div style="margin-bottom: 16px; padding: 12px; background-color: #f9f9f9; border-radius: 4px; border: 2px solid #990000;">
-                <h3 style="font-size: 16px; color: #333333; margin: 0 0 8px 0; font-weight: 600; line-height: 1.3;">${link.title}</h3>
-                <p style="color: #666666; line-height: 1.6; font-size: 14px; margin: 0 0 8px 0;">${link.description}</p>
+                <div style="font-size: 16px; color: #333333; margin: 0 0 8px 0; font-weight: 600; line-height: 1.2;">${link.title}</div>
+                <div style="color: #666666; line-height: 1.2; font-size: 14px; margin: 0 0 8px 0;">${link.description}</div>
                 <a href="${link.url}" style="display: inline-block; background-color: #990000; color: #ffffff; padding: 8px 12px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold;">${link.title.toLowerCase().includes('whatsapp') ? 'Join Group' : link.title.toLowerCase().includes('ai studio') ? 'Join AI Studio' : 'Join Now'}</a>
             </div>`).join('')}
         </td>
