@@ -419,6 +419,38 @@
             font-style: italic;
             pointer-events: none;
         }
+        
+        .editor-content ul,
+        .editor-content ol {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+        
+        .editor-content ul li,
+        .editor-content ol li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        
+        .editor-content blockquote {
+            margin: 16px 0;
+            padding: 12px 20px;
+            border-left: 4px solid #990000;
+            background-color: #f9f9f9;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .editor-content hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .editor-content sub,
+        .editor-content sup {
+            font-size: 0.8em;
+        }
 
         .status-info {
             display: flex;
@@ -716,10 +748,15 @@
                     .replace(/<p><\/p>/g, '')
                     .replace(/<div><\/div>/g, '')
                     .replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br>') // Remove double breaks
+                    .replace(/<div>/g, '<p>') // Convert divs to paragraphs
+                    .replace(/<\/div>/g, '</p>')
                     .trim();
                 
-                // Ensure content has proper paragraph structure if it's not empty
-                if (cleaned && !cleaned.startsWith('<p') && !cleaned.includes('<br>')) {
+                // Preserve lists, blockquotes, and other structural elements
+                const hasStructuralElements = /(<ul|<ol|<blockquote|<hr|<h[1-6])/.test(cleaned);
+                
+                // Ensure content has proper paragraph structure if it's not empty and doesn't have structural elements
+                if (cleaned && !hasStructuralElements && !cleaned.startsWith('<p') && !cleaned.includes('<br>')) {
                     cleaned = `<p>${cleaned}</p>`;
                 }
                 
@@ -994,6 +1031,15 @@
                             <button className="editor-btn" onClick={() => executeCommand('underline')} title="Underline">
                                 <u>U</u>
                             </button>
+                            <button className="editor-btn" onClick={() => executeCommand('strikeThrough')} title="Strikethrough">
+                                <s>S</s>
+                            </button>
+                            <button className="editor-btn" onClick={() => executeCommand('subscript')} title="Subscript">
+                                X₂
+                            </button>
+                            <button className="editor-btn" onClick={() => executeCommand('superscript')} title="Superscript">
+                                X²
+                            </button>
                         </div>
                         
                         <span style={{borderLeft: '1px solid #ddd', margin: '0 4px'}}></span>
@@ -1112,6 +1158,27 @@
                         
                         <span style={{borderLeft: '1px solid #ddd', margin: '0 4px'}}></span>
                         
+                        {/* Lists & Structure Group */}
+                        <div className="toolbar-group">
+                            <button className="editor-btn" onClick={() => executeCommand('insertUnorderedList')} title="Bullet Points">
+                                • 
+                            </button>
+                            <button className="editor-btn" onClick={() => executeCommand('insertOrderedList')} title="Numbered List">
+                                1.
+                            </button>
+                            <button className="editor-btn" onClick={() => executeCommand('indent')} title="Increase Indent">
+                                ⇥
+                            </button>
+                            <button className="editor-btn" onClick={() => executeCommand('outdent')} title="Decrease Indent">
+                                ⇤
+                            </button>
+                            <button className="editor-btn" onClick={() => executeCommand('insertHorizontalRule')} title="Horizontal Line">
+                                ―
+                            </button>
+                        </div>
+                        
+                        <span style={{borderLeft: '1px solid #ddd', margin: '0 4px'}}></span>
+                        
                         {/* Spacing Group */}
                         <div className="toolbar-group">
                             <select 
@@ -1161,6 +1228,12 @@
                                 if (url) executeCommand('createLink', url);
                             }} title="Insert Link">
                                 🔗
+                            </button>
+                            <button className="editor-btn" onClick={() => executeCommand('formatBlock', 'blockquote')} title="Block Quote">
+                                ❝
+                            </button>
+                            <button className="editor-btn" onClick={() => executeCommand('removeFormat')} title="Clear Formatting">
+                                🧹
                             </button>
                         </div>
                     </div>
