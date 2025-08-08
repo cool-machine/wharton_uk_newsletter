@@ -406,6 +406,18 @@
             content: attr(data-placeholder);
             color: #999;
             font-style: italic;
+            pointer-events: none;
+        }
+        
+        .editor-content:focus:before {
+            display: none;
+        }
+        
+        .editor-content.show-placeholder:before {
+            content: attr(data-placeholder);
+            color: #999;
+            font-style: italic;
+            pointer-events: none;
         }
 
         .status-info {
@@ -721,6 +733,19 @@
                 onChange && onChange(cleanedContent);
                 debouncedSaveToHistory(cleanedContent); // Use debounced save for typing
                 updateCurrentFormatting();
+                updatePlaceholderState();
+            };
+            
+            const updatePlaceholderState = () => {
+                if (editorRef.current) {
+                    const content = editorRef.current.textContent || editorRef.current.innerText || '';
+                    const isEmpty = content.trim() === '';
+                    if (isEmpty) {
+                        editorRef.current.classList.add('show-placeholder');
+                    } else {
+                        editorRef.current.classList.remove('show-placeholder');
+                    }
+                }
             };
 
             const executeCommand = (command, value = null) => {
@@ -870,6 +895,9 @@
                 if (saveHistoryTimeoutRef.current) {
                     clearTimeout(saveHistoryTimeoutRef.current);
                 }
+                
+                // Update placeholder state when content changes
+                setTimeout(updatePlaceholderState, 0);
                 
                 // Reset history completely when content changes from outside (like loading JSON)
                 setHistory([cleanedContent]);
@@ -1141,7 +1169,11 @@
                         className="editor-content"
                         contentEditable
                         onInput={handleContentChange}
-                        onBlur={handleContentChange}
+                        onBlur={(e) => {
+                            handleContentChange(e);
+                            updatePlaceholderState();
+                        }}
+                        onFocus={updatePlaceholderState}
                         onMouseUp={handleSelectionChange}
                         onKeyUp={handleSelectionChange}
                         style={{
@@ -1510,7 +1542,7 @@
                     title: type === 'rich-text' ? 'New Rich Text Section' : 'New Section',
                     titleAlignment: 'left', // Default alignment
                     items: type === 'rich-text' ? [] : [{ title: '', description: '' }],
-                    richContent: type === 'rich-text' ? '<p>Enter your content here...</p>' : undefined,
+                    richContent: type === 'rich-text' ? '' : undefined,
                     sectionUrl: type === 'rich-text' ? '' : undefined,
                     imageUrl: type === 'rich-text' ? '' : undefined,
                     imageAlt: type === 'rich-text' ? '' : undefined,
