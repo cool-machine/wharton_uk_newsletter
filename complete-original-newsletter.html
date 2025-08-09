@@ -2794,18 +2794,14 @@ Please provide just the alt text without quotes or extra explanation.`;
                                         placeholder="https://example.com (leave blank to omit link)"
                                     />
 
-                                    {/* Button Text Field (Optional) */}
-                                    {section.url && (
-                                        <>
-                                            <label className="label-style">Button Text (optional):</label>
-                                            <input
-                                                className="input-style"
-                                                value={section.buttonText || ''}
-                                                onChange={(e) => updateSection(section.id, { buttonText: e.target.value })}
-                                                placeholder="Learn More (leave blank for default)"
-                                            />
-                                        </>
-                                    )}
+                                    {/* Button Text Field (Optional - always visible) */}
+                                    <label className="label-style">Button Text (optional):</label>
+                                    <input
+                                        className="input-style"
+                                        value={section.buttonText || ''}
+                                        onChange={(e) => updateSection(section.id, { buttonText: e.target.value })}
+                                        placeholder="Learn More (leave blank for default)"
+                                    />
 
 
                                 </div>
