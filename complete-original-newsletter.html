@@ -150,6 +150,16 @@
         .draggable-section {
             border: 2px dashed #ddd;
             transition: all 0.2s ease;
+            position: relative;
+        }
+        .draggable-section.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+            z-index: 1000;
+        }
+        .draggable-section.drag-over {
+            border-color: #007bff;
+            background-color: #f8f9fa;
         }
 
         .drag-handle {
@@ -163,6 +173,13 @@
             border: 1px solid #ddd;
             display: inline-block;
             margin-right: 8px;
+        }
+        .drag-handle:hover {
+            background-color: #e0e0e0;
+            cursor: grab;
+        }
+        .drag-handle:active {
+            cursor: grabbing;
         }
 
         .input-style {
@@ -745,14 +762,14 @@
                 setHistoryIndex(prev => prev + 1);
             };
 
-            const debouncedSaveToHistory = (content) => {
+            const debouncedSaveToHistory = React.useCallback((content) => {
                 if (saveHistoryTimeoutRef.current) {
                     clearTimeout(saveHistoryTimeoutRef.current);
                 }
                 saveHistoryTimeoutRef.current = setTimeout(() => {
                     saveToHistory(content);
                 }, 500); // Save to history 500ms after user stops typing
-            };
+            }, []);
 
             const cleanContent = (html) => {
                 // Clean up any problematic HTML that might cause cursor issues
@@ -1029,24 +1046,26 @@
                 return () => {
                     document.removeEventListener('click', handleClickOutside);
                     document.removeEventListener('selectionchange', handleSelectionChange);
-                    // Clean up timeout
+                    // Clean up all timeouts to prevent memory leaks
                     if (saveHistoryTimeoutRef.current) {
                         clearTimeout(saveHistoryTimeoutRef.current);
+                        saveHistoryTimeoutRef.current = null;
                     }
                     if (emitChangeTimeoutRef.current) {
                         clearTimeout(emitChangeTimeoutRef.current);
+                        emitChangeTimeoutRef.current = null;
                     }
                 };
             }, []);
 
-            const emitChangeDebounced = (val) => {
+            const emitChangeDebounced = React.useCallback((val) => {
                 if (emitChangeTimeoutRef.current) {
                     clearTimeout(emitChangeTimeoutRef.current);
                 }
                 emitChangeTimeoutRef.current = setTimeout(() => {
                     onChange && onChange(val);
                 }, 300);
-            };
+            }, [onChange]);
 
             return (
                 <div className="rich-editor">
@@ -1732,6 +1751,62 @@
                     }
                     return { ...prev, sections };
                 });
+                setHasUnsavedChanges(true);
+            };
+
+            // Drag and Drop handlers
+            const [draggedSectionId, setDraggedSectionId] = useState(null);
+
+            const handleDragStart = (e, sectionId) => {
+                setDraggedSectionId(sectionId);
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', e.target.outerHTML);
+                e.target.classList.add('dragging');
+            };
+
+            const handleDragOver = (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            };
+
+            const handleDragEnter = (e) => {
+                e.preventDefault();
+                e.target.closest('.draggable-section')?.classList.add('drag-over');
+            };
+
+            const handleDragLeave = (e) => {
+                e.target.closest('.draggable-section')?.classList.remove('drag-over');
+            };
+
+            const handleDrop = (e, targetSectionId) => {
+                e.preventDefault();
+                e.target.closest('.draggable-section')?.classList.remove('drag-over');
+                
+                if (draggedSectionId && draggedSectionId !== targetSectionId) {
+                    setData(prev => {
+                        const sections = [...prev.sections];
+                        const draggedIndex = sections.findIndex(s => s.id === draggedSectionId);
+                        const targetIndex = sections.findIndex(s => s.id === targetSectionId);
+                        
+                        if (draggedIndex !== -1 && targetIndex !== -1) {
+                            // Remove dragged section and insert at target position
+                            const [draggedSection] = sections.splice(draggedIndex, 1);
+                            sections.splice(targetIndex, 0, draggedSection);
+                        }
+                        
+                        return { ...prev, sections };
+                    });
+                    setHasUnsavedChanges(true);
+                }
+                setDraggedSectionId(null);
+            };
+
+            const handleDragEnd = (e) => {
+                e.target.classList.remove('dragging');
+                document.querySelectorAll('.draggable-section').forEach(el => {
+                    el.classList.remove('drag-over');
+                });
+                setDraggedSectionId(null);
             };
 
             const addItemToSection = (sectionId) => {
@@ -2677,10 +2752,24 @@ Please provide just the alt text without quotes or extra explanation.`;
 
                             {/* Dynamic Sections */}
                             {data.sections.map((section, sectionIndex) => (
-                                <div key={section.id} className="section draggable-section">
+                                <div 
+                                    key={section.id} 
+                                    className="section draggable-section"
+                                    draggable="true"
+                                    onDragStart={(e) => handleDragStart(e, section.id)}
+                                    onDragOver={handleDragOver}
+                                    onDragEnter={handleDragEnter}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={(e) => handleDrop(e, section.id)}
+                                    onDragEnd={handleDragEnd}
+                                >
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <div className="drag-handle" title="Drag to reorder section">
+                                            <div 
+                                                className="drag-handle" 
+                                                title="Drag to reorder section"
+                                                onMouseDown={(e) => e.stopPropagation()}
+                                            >
                                                 ⋮⋮
                                             </div>
                                             <span style={{ fontWeight: 'bold', color: '#6c757d' }}>
