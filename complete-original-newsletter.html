@@ -797,6 +797,7 @@
             const isProcessingChange = React.useRef(false);
 
             const handleContentChange = (e) => {
+                // EMERGENCY MINIMAL VERSION - no complex processing
                 const content = e.target.innerHTML;
                 setEditorContent(content);
                 emitChangeDebounced(content);
@@ -815,30 +816,9 @@
             };
 
             const executeCommand = (command, value = null) => {
-                // Ensure editor is focused before executing command
+                // DISABLED FOR TESTING - just focus the editor
                 if (editorRef.current) {
-                    // Prevent handleContentChange from running during command execution
-                    isProcessingChange.current = true;
-                    
-                    try {
-                        editorRef.current.focus();
-                        document.execCommand(command, false, value);
-                        
-                        const newContent = editorRef.current.innerHTML;
-                        setEditorContent(newContent);
-                        emitChangeDebounced(newContent);
-                        // Clear any pending debounced save and save immediately for formatting
-                        if (saveHistoryTimeoutRef.current) {
-                            clearTimeout(saveHistoryTimeoutRef.current);
-                        }
-                        saveToHistory(newContent);
-                        updateCurrentFormatting();
-                    } finally {
-                        // Reset the flag after command execution
-                        setTimeout(() => {
-                            isProcessingChange.current = false;
-                        }, 10);
-                    }
+                    editorRef.current.focus();
                 }
             };
 
@@ -1050,21 +1030,18 @@
                 };
             }, []);
 
-            const emitChangeDebounced = (val) => {
+            const emitChangeDebounced = React.useCallback((val) => {
                 if (emitChangeTimeoutRef.current) {
                     clearTimeout(emitChangeTimeoutRef.current);
                 }
                 emitChangeTimeoutRef.current = setTimeout(() => {
-                    if (onChange) {
-                        onChange(val);
-                    }
-                }, 500);
-            };
+                    onChange && onChange(val);
+                }, 1000); // Increased delay to reduce frequency
+            }, [onChange]);
 
             return (
                 <div className="rich-editor">
-                    {/* TOOLBAR DISABLED FOR TESTING */}
-                    <div className="editor-toolbar" style={{display: 'none'}}>
+                    <div className="editor-toolbar">
                         {/* Row 1: Essential Formatting */}
                         <div className="editor-toolbar-row">
                             {/* History Group */}
