@@ -795,37 +795,52 @@
                 return cleaned;
             };
 
+            const isProcessingChange = React.useRef(false);
+
             const handleContentChange = (e) => {
-                const rawContent = e.target.innerHTML;
-                const cleanedContent = cleanContent(rawContent);
-                // Keep DOM in sync with cleaned HTML to minimize later diffs while preserving caret
-                if (editorRef.current && editorRef.current.innerHTML !== cleanedContent) {
-                    const selection = window.getSelection();
-                    let range = null;
-                    if (selection && selection.rangeCount) {
-                        range = selection.getRangeAt(0).cloneRange();
-                    }
-                    editorRef.current.innerHTML = cleanedContent;
-                    if (range) {
-                        try {
-                            selection.removeAllRanges();
-                            selection.addRange(range);
-                        } catch (e) {
-                            // Fallback: place caret at end
-                            const newRange = document.createRange();
-                            newRange.selectNodeContents(editorRef.current);
-                            newRange.collapse(false);
-                            selection.removeAllRanges();
-                            selection.addRange(newRange);
+                // Prevent infinite loops from DOM manipulation triggering more events
+                if (isProcessingChange.current) return;
+                
+                isProcessingChange.current = true;
+                
+                try {
+                    const rawContent = e.target.innerHTML;
+                    const cleanedContent = cleanContent(rawContent);
+                    
+                    // Only update DOM if content actually needs cleaning
+                    if (editorRef.current && rawContent !== cleanedContent) {
+                        const selection = window.getSelection();
+                        let range = null;
+                        if (selection && selection.rangeCount) {
+                            range = selection.getRangeAt(0).cloneRange();
+                        }
+                        editorRef.current.innerHTML = cleanedContent;
+                        if (range) {
+                            try {
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+                            } catch (e) {
+                                // Fallback: place caret at end
+                                const newRange = document.createRange();
+                                newRange.selectNodeContents(editorRef.current);
+                                newRange.collapse(false);
+                                selection.removeAllRanges();
+                                selection.addRange(newRange);
+                            }
                         }
                     }
-                }
 
-                setEditorContent(cleanedContent);
-                emitChangeDebounced(cleanedContent);
-                debouncedSaveToHistory(cleanedContent); // Use debounced save for typing
-                updateCurrentFormatting();
-                updatePlaceholderState();
+                    setEditorContent(cleanedContent);
+                    emitChangeDebounced(cleanedContent);
+                    debouncedSaveToHistory(cleanedContent);
+                    updateCurrentFormatting();
+                    updatePlaceholderState();
+                } finally {
+                    // Reset the flag after a brief delay to ensure DOM updates complete
+                    setTimeout(() => {
+                        isProcessingChange.current = false;
+                    }, 10);
+                }
             };
             
             const updatePlaceholderState = () => {
@@ -843,18 +858,28 @@
             const executeCommand = (command, value = null) => {
                 // Ensure editor is focused before executing command
                 if (editorRef.current) {
-                    editorRef.current.focus();
-                    document.execCommand(command, false, value);
+                    // Prevent handleContentChange from running during command execution
+                    isProcessingChange.current = true;
                     
-                    const newContent = editorRef.current.innerHTML;
-                    setEditorContent(newContent);
-                    emitChangeDebounced(newContent);
-                    // Clear any pending debounced save and save immediately for formatting
-                    if (saveHistoryTimeoutRef.current) {
-                        clearTimeout(saveHistoryTimeoutRef.current);
+                    try {
+                        editorRef.current.focus();
+                        document.execCommand(command, false, value);
+                        
+                        const newContent = editorRef.current.innerHTML;
+                        setEditorContent(newContent);
+                        emitChangeDebounced(newContent);
+                        // Clear any pending debounced save and save immediately for formatting
+                        if (saveHistoryTimeoutRef.current) {
+                            clearTimeout(saveHistoryTimeoutRef.current);
+                        }
+                        saveToHistory(newContent);
+                        updateCurrentFormatting();
+                    } finally {
+                        // Reset the flag after command execution
+                        setTimeout(() => {
+                            isProcessingChange.current = false;
+                        }, 10);
                     }
-                    saveToHistory(newContent);
-                    updateCurrentFormatting();
                 }
             };
 
@@ -925,54 +950,62 @@
             const handleUndo = () => {
                 if (historyIndex > 0) {
                     isUndoRedoOperation.current = true;
+                    isProcessingChange.current = true; // Prevent infinite loops
                     
-                    // Clear any pending saves
-                    if (saveHistoryTimeoutRef.current) {
-                        clearTimeout(saveHistoryTimeoutRef.current);
+                    try {
+                        // Clear any pending saves
+                        if (saveHistoryTimeoutRef.current) {
+                            clearTimeout(saveHistoryTimeoutRef.current);
+                        }
+                        
+                        const previousContent = history[historyIndex - 1];
+                        setEditorContent(previousContent);
+                        emitChangeDebounced(previousContent);
+                        setHistoryIndex(historyIndex - 1);
+                        lastSavedContent.current = previousContent;
+                        
+                        // Update the editor content
+                        if (editorRef.current) {
+                            editorRef.current.innerHTML = previousContent;
+                        }
+                    } finally {
+                        setTimeout(() => {
+                            isUndoRedoOperation.current = false;
+                            isProcessingChange.current = false;
+                            updateCurrentFormatting();
+                        }, 10);
                     }
-                    
-                    const previousContent = history[historyIndex - 1];
-                    setEditorContent(previousContent);
-                    emitChangeDebounced(previousContent);
-                    setHistoryIndex(historyIndex - 1);
-                    lastSavedContent.current = previousContent;
-                    
-                    // Update the editor content
-                    if (editorRef.current) {
-                        editorRef.current.innerHTML = previousContent;
-                    }
-                    
-                    setTimeout(() => {
-                        isUndoRedoOperation.current = false;
-                        updateCurrentFormatting();
-                    }, 10);
                 }
             };
 
             const handleRedo = () => {
                 if (historyIndex < history.length - 1) {
                     isUndoRedoOperation.current = true;
+                    isProcessingChange.current = true; // Prevent infinite loops
                     
-                    // Clear any pending saves
-                    if (saveHistoryTimeoutRef.current) {
-                        clearTimeout(saveHistoryTimeoutRef.current);
+                    try {
+                        // Clear any pending saves
+                        if (saveHistoryTimeoutRef.current) {
+                            clearTimeout(saveHistoryTimeoutRef.current);
+                        }
+                        
+                        const nextContent = history[historyIndex + 1];
+                        setEditorContent(nextContent);
+                        emitChangeDebounced(nextContent);
+                        setHistoryIndex(historyIndex + 1);
+                        lastSavedContent.current = nextContent;
+                        
+                        // Update the editor content
+                        if (editorRef.current) {
+                            editorRef.current.innerHTML = nextContent;
+                        }
+                    } finally {
+                        setTimeout(() => {
+                            isUndoRedoOperation.current = false;
+                            isProcessingChange.current = false;
+                            updateCurrentFormatting();
+                        }, 10);
                     }
-                    
-                    const nextContent = history[historyIndex + 1];
-                    setEditorContent(nextContent);
-                    emitChangeDebounced(nextContent);
-                    setHistoryIndex(historyIndex + 1);
-                    lastSavedContent.current = nextContent;
-                    
-                    // Update the editor content
-                    if (editorRef.current) {
-                        editorRef.current.innerHTML = nextContent;
-                    }
-                    
-                    setTimeout(() => {
-                        isUndoRedoOperation.current = false;
-                        updateCurrentFormatting();
-                    }, 10);
                 }
             };
 
