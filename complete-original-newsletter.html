@@ -768,14 +768,19 @@
                 }
                 saveHistoryTimeoutRef.current = setTimeout(() => {
                     saveToHistory(content);
-                }, 500); // Save to history 500ms after user stops typing
+                }, 2000); // Increased delay to reduce history saves
             }, []);
 
-            const cleanContent = (html) => {
-                // Clean up any problematic HTML that might cause cursor issues
+            const cleanContent = React.useCallback((html) => {
+                // Optimized content cleaning - only clean when necessary
                 if (!html) return '';
                 
-                // Remove any empty paragraphs or divs that might interfere
+                // Quick check - if content looks clean already, return as-is
+                if (html.startsWith('<p>') && !html.includes('<div>') && !html.includes('<p></p>')) {
+                    return html;
+                }
+                
+                // Only perform expensive regex operations when needed
                 let cleaned = html
                     .replace(/<p><\/p>/g, '')
                     .replace(/<div><\/div>/g, '')
@@ -784,16 +789,17 @@
                     .replace(/<\/div>/g, '</p>')
                     .trim();
                 
-                // Preserve lists, blockquotes, and other structural elements
-                const hasStructuralElements = /(<ul|<ol|<blockquote|<hr|<h[1-6])/.test(cleaned);
+                // Quick structural element check
+                const hasStructuralElements = cleaned.includes('<ul') || cleaned.includes('<ol') || 
+                                            cleaned.includes('<blockquote') || cleaned.includes('<hr');
                 
-                // Ensure content has proper paragraph structure if it's not empty and doesn't have structural elements
+                // Ensure content has proper paragraph structure
                 if (cleaned && !hasStructuralElements && !cleaned.startsWith('<p') && !cleaned.includes('<br>')) {
                     cleaned = `<p>${cleaned}</p>`;
                 }
                 
                 return cleaned;
-            };
+            }, []);
 
             const isProcessingChange = React.useRef(false);
 
@@ -1097,7 +1103,7 @@
                 }
                 emitChangeTimeoutRef.current = setTimeout(() => {
                     onChange && onChange(val);
-                }, 300);
+                }, 1000); // Increased delay to reduce frequency
             }, [onChange]);
 
             return (
@@ -1716,10 +1722,7 @@
                 setHasUnsavedChanges(true);
             };
 
-            // Track changes to data
-            useEffect(() => {
-                setHasUnsavedChanges(true);
-            }, [data]);
+            // Remove this useEffect - it was causing performance issues by running on every data change
 
             // Check if browser supports File System Access API
             const supportsFileSystemAccess = () => {
@@ -1745,6 +1748,7 @@
                     ...prev,
                     sections: [...prev.sections, newSection]
                 }));
+                setHasUnsavedChanges(true);
             };
 
             const updateSection = (sectionId, updates) => {
@@ -1762,6 +1766,7 @@
                     ...prev,
                     sections: prev.sections.filter(section => section.id !== sectionId)
                 }));
+                setHasUnsavedChanges(true);
             };
 
             const moveSectionUp = (sectionId) => {
@@ -1882,6 +1887,7 @@
                     newCommunityLinks[index] = { ...newCommunityLinks[index], [field]: value };
                     return { ...prev, communityLinks: newCommunityLinks };
                 });
+                setHasUnsavedChanges(true);
             };
 
             const handleImageUpload = (sectionId, file) => {
