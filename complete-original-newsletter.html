@@ -824,9 +824,15 @@
             };
 
             const executeCommand = (command, value = null) => {
-                // DISABLED FOR TESTING - just focus the editor
+                // Simplified but functional version
                 if (editorRef.current) {
                     editorRef.current.focus();
+                    document.execCommand(command, false, value);
+                    
+                    // Simple update without complex processing
+                    const newContent = editorRef.current.innerHTML;
+                    setEditorContent(newContent);
+                    emitChangeDebounced(newContent);
                 }
             };
 
@@ -2735,8 +2741,7 @@ Please provide just the alt text without quotes or extra explanation.`;
                                 <div 
                                     key={section.id} 
                                     className="section draggable-section"
-                                    draggable="true"
-                                    onDragStart={(e) => handleDragStart(e, section.id)}
+                                    draggable="false"
                                     onDragOver={handleDragOver}
                                     onDragEnter={handleDragEnter}
                                     onDragLeave={handleDragLeave}
@@ -2748,6 +2753,11 @@ Please provide just the alt text without quotes or extra explanation.`;
                                             <div 
                                                 className="drag-handle" 
                                                 title="Drag to reorder section"
+                                                draggable="true"
+                                                onDragStart={(e) => {
+                                                    handleDragStart(e, section.id);
+                                                    e.stopPropagation();
+                                                }}
                                                 onMouseDown={(e) => e.stopPropagation()}
                                             >
                                                 ⋮⋮
