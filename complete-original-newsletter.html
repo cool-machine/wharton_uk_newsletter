@@ -730,18 +730,11 @@
     <script type="text/babel">
         const { useState, useEffect, useCallback } = React;
 
-        // Rich Text Editor Component
+        // Minimal Rich Text Editor Component for Testing
         function RichTextEditor({ content, onChange, placeholder }) {
             const [editorContent, setEditorContent] = useState(content || '');
-            const [showColorPicker, setShowColorPicker] = useState(false);
-            const [currentFontSize, setCurrentFontSize] = useState('');
-            const [history, setHistory] = useState([content || '']);
-            const [historyIndex, setHistoryIndex] = useState(0);
             const editorRef = React.useRef(null);
-            const isUndoRedoOperation = React.useRef(false);
-            const saveHistoryTimeoutRef = React.useRef(null);
-            const lastSavedContent = React.useRef(content || '');
-            const emitChangeTimeoutRef = React.useRef(null);
+            const changeTimeoutRef = React.useRef(null);
 
             const saveToHistory = (content) => {
                 if (isUndoRedoOperation.current) return;
@@ -804,49 +797,9 @@
             const isProcessingChange = React.useRef(false);
 
             const handleContentChange = (e) => {
-                // Prevent infinite loops from DOM manipulation triggering more events
-                if (isProcessingChange.current) return;
-                
-                isProcessingChange.current = true;
-                
-                try {
-                    const rawContent = e.target.innerHTML;
-                    const cleanedContent = cleanContent(rawContent);
-                    
-                    // Only update DOM if content actually needs cleaning
-                    if (editorRef.current && rawContent !== cleanedContent) {
-                        const selection = window.getSelection();
-                        let range = null;
-                        if (selection && selection.rangeCount) {
-                            range = selection.getRangeAt(0).cloneRange();
-                        }
-                        editorRef.current.innerHTML = cleanedContent;
-                        if (range) {
-                            try {
-                                selection.removeAllRanges();
-                                selection.addRange(range);
-                            } catch (e) {
-                                // Fallback: place caret at end
-                                const newRange = document.createRange();
-                                newRange.selectNodeContents(editorRef.current);
-                                newRange.collapse(false);
-                                selection.removeAllRanges();
-                                selection.addRange(newRange);
-                            }
-                        }
-                    }
-
-                    setEditorContent(cleanedContent);
-                    emitChangeDebounced(cleanedContent);
-                    debouncedSaveToHistory(cleanedContent);
-                    updateCurrentFormatting();
-                    updatePlaceholderState();
-                } finally {
-                    // Reset the flag after a brief delay to ensure DOM updates complete
-                    setTimeout(() => {
-                        isProcessingChange.current = false;
-                    }, 10);
-                }
+                const content = e.target.innerHTML;
+                setEditorContent(content);
+                emitChangeDebounced(content);
             };
             
             const updatePlaceholderState = () => {
@@ -1097,18 +1050,21 @@
                 };
             }, []);
 
-            const emitChangeDebounced = React.useCallback((val) => {
+            const emitChangeDebounced = (val) => {
                 if (emitChangeTimeoutRef.current) {
                     clearTimeout(emitChangeTimeoutRef.current);
                 }
                 emitChangeTimeoutRef.current = setTimeout(() => {
-                    onChange && onChange(val);
-                }, 1000); // Increased delay to reduce frequency
-            }, [onChange]);
+                    if (onChange) {
+                        onChange(val);
+                    }
+                }, 500);
+            };
 
             return (
                 <div className="rich-editor">
-                    <div className="editor-toolbar">
+                    {/* TOOLBAR DISABLED FOR TESTING */}
+                    <div className="editor-toolbar" style={{display: 'none'}}>
                         {/* Row 1: Essential Formatting */}
                         <div className="editor-toolbar-row">
                             {/* History Group */}
