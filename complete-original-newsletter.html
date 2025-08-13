@@ -733,8 +733,15 @@
         // Minimal Rich Text Editor Component for Testing
         function RichTextEditor({ content, onChange, placeholder }) {
             const [editorContent, setEditorContent] = useState(content || '');
+            const [showColorPicker, setShowColorPicker] = useState(false);
+            const [currentFontSize, setCurrentFontSize] = useState('');
+            const [history, setHistory] = useState([content || '']);
+            const [historyIndex, setHistoryIndex] = useState(0);
             const editorRef = React.useRef(null);
-            const changeTimeoutRef = React.useRef(null);
+            const isUndoRedoOperation = React.useRef(false);
+            const saveHistoryTimeoutRef = React.useRef(null);
+            const lastSavedContent = React.useRef(content || '');
+            const emitChangeTimeoutRef = React.useRef(null);
 
             const saveToHistory = (content) => {
                 if (isUndoRedoOperation.current) return;
@@ -801,6 +808,7 @@
                 const content = e.target.innerHTML;
                 setEditorContent(content);
                 emitChangeDebounced(content);
+                updatePlaceholderState(); // This is still needed for placeholder behavior
             };
             
             const updatePlaceholderState = () => {
