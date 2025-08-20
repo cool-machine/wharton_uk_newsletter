@@ -1,0 +1,2970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Builder - Complete Original</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    
+    <!-- React and dependencies from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        /* Email-safe CSS for newsletter preview */
+        .responsive-text p {
+            margin-bottom: 16px !important;
+            line-height: 1.6 !important;
+        }
+
+        .responsive-section-title p {
+            margin-bottom: 8px !important;
+            line-height: 1.4 !important;
+        }
+
+        .responsive-image {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
+        .responsive-button {
+            display: inline-block !important;
+            background-color: #011F5B !important;
+            color: #ffffff !important;
+            padding: 10px 16px !important;
+            text-decoration: none !important;
+            border-radius: 4px !important;
+            margin-top: 8px !important;
+            font-size: 14px !important;
+            font-weight: bold !important;
+            min-width: 120px !important;
+            text-align: center !important;
+            line-height: 1.4 !important;
+        }
+
+        .responsive-td {
+            padding: 20px 16px !important;
+        }
+
+        /* Mobile responsive */
+        @media screen and (max-width: 600px) {
+            .responsive-table {
+                width: 100% !important;
+                min-width: 320px !important;
+            }
+            
+            .responsive-td {
+                padding: 16px 12px !important;
+            }
+            
+            .responsive-header {
+                font-size: 18px !important;
+                padding: 12px !important;
+            }
+            
+            .responsive-button {
+                font-size: 12px !important;
+                padding: 8px 12px !important;
+            }
+        }
+
+        /* App styles */
+        .app-header {
+            background: #011F5B;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #011F5B;
+            color: white;
+        }
+
+        .btn-copy {
+            background: #990000;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #666;
+            color: white;
+        }
+
+        .container {
+            display: flex;
+            gap: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .panel {
+            flex: 1;
+            background: transparent;
+            border-radius: 8px;
+            padding: 24px;
+            max-height: 82vh;
+            overflow-y: auto;
+            min-width: 0; /* Prevent flex items from overflowing */
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .draggable-section {
+            border: 2px dashed #ddd;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .draggable-section.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+            z-index: 1000;
+        }
+        .draggable-section.drag-over {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+
+        .drag-handle {
+            cursor: grab;
+            padding: 8px;
+            color: #666;
+            font-size: 16px;
+            user-select: none;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .drag-handle:hover {
+            background-color: #e0e0e0;
+            cursor: grab;
+        }
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .input-style {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            user-select: text;
+            pointer-events: auto;
+        }
+
+        .textarea-style {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .label-style {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .button-style {
+            padding: 8px 16px;
+            background-color: #990000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 8px;
+            margin-top: 8px;
+        }
+
+        .button-style:hover {
+            background-color: #aa0000;
+        }
+
+        .item-container {
+            padding: 16px;
+            background-color: white;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            border: 1px solid #ddd;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .flex-1 {
+            flex: 1;
+        }
+
+        /* Rich text editor */
+        .rich-editor {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .editor-toolbar {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            background: #f8f9fa;
+            display: block;
+            position: relative;
+        }
+        
+        .editor-toolbar-row {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+        
+        .editor-toolbar-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .toolbar-group {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+        }
+
+        .editor-btn {
+            padding: 6px 8px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 13px;
+            min-width: 32px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        .editor-btn:hover {
+            background: #e9ecef;
+        }
+
+        .editor-btn:disabled {
+            background: #f8f9fa;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .editor-btn:disabled:hover {
+            background: #f8f9fa;
+        }
+
+        .editor-select {
+            padding: 4px 6px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            height: 32px;
+            min-width: 70px;
+        }
+
+        .editor-select:hover {
+            background: #e9ecef;
+        }
+
+        /* Mobile-specific editor styles */
+        @media (max-width: 768px) {
+            .editor-toolbar {
+                padding: 10px;
+                gap: 6px;
+                flex-wrap: wrap;
+            }
+            
+            .editor-btn {
+                padding: 8px 10px;
+                font-size: 14px;
+                min-width: 36px;
+                width: 36px;
+                height: 36px;
+                margin: 1px;
+            }
+            
+            .editor-select {
+                padding: 6px 8px;
+                font-size: 14px;
+                height: 40px;
+                min-width: 80px;
+                margin: 2px;
+            }
+            
+            .editor-content {
+                padding: 12px;
+                min-height: 120px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            .color-grid {
+                grid-template-columns: repeat(6, 24px);
+                gap: 4px;
+                padding: 12px;
+            }
+            
+            .color-swatch {
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .editor-btn {
+                padding: 6px 8px;
+                font-size: 12px;
+                min-width: 30px;
+                width: 30px;
+                height: 30px;
+            }
+            
+            .editor-select {
+                padding: 4px 6px;
+                font-size: 13px;
+                height: 36px;
+                min-width: 70px;
+            }
+            
+            .color-grid {
+                grid-template-columns: repeat(5, 22px);
+                gap: 3px;
+            }
+            
+            .color-swatch {
+                width: 22px;
+                height: 22px;
+            }
+        }
+
+        .color-grid {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 1000;
+            min-width: 200px;
+            right: 0;
+        }
+
+        .color-grid.show {
+            display: block;
+        }
+
+        .color-swatch {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #ddd;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .color-swatch:hover {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+
+        .editor-content {
+            padding: 8px;
+            min-height: 100px;
+            outline: none;
+        }
+
+        .editor-content p {
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .editor-content:empty:before {
+            content: attr(data-placeholder);
+            color: #999;
+            font-style: italic;
+            pointer-events: none;
+        }
+        
+        .editor-content:focus:before {
+            display: none;
+        }
+        
+        .editor-content.show-placeholder:before {
+            content: attr(data-placeholder);
+            color: #999;
+            font-style: italic;
+            pointer-events: none;
+        }
+        
+        .editor-content ul,
+        .editor-content ol {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+        
+        .editor-content ul li,
+        .editor-content ol li {
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+        
+        .editor-content blockquote {
+            margin: 16px 0;
+            padding: 12px 20px;
+            border-left: 4px solid #990000;
+            background-color: #f9f9f9;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .editor-content hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .editor-content sub,
+        .editor-content sup {
+            font-size: 0.8em;
+        }
+
+        .status-info {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #495057;
+            font-weight: bold;
+        }
+
+        /* Tablet styles (769px - 1024px) */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .container {
+                max-width: 100%;
+                gap: 20px;
+                padding: 0 20px;
+            }
+            
+            .panel {
+                padding: 20px;
+                max-height: 78vh;
+            }
+        }
+
+        /* Mobile and small tablet styles (max-width: 768px) */
+        @media (max-width: 768px) {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            
+            .app-header {
+                padding: 16px 20px;
+                text-align: center;
+            }
+            
+            .app-header h1 {
+                font-size: 22px !important;
+                line-height: 1.3;
+            }
+            
+            .app-header p {
+                font-size: 14px;
+                margin-top: 6px !important;
+            }
+            
+            .controls {
+                padding: 12px 20px;
+                gap: 12px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .btn-primary, .btn-secondary, .btn-copy {
+                padding: 12px 20px;
+                font-size: 14px;
+                min-width: 120px;
+                margin: 4px;
+            }
+            
+            .container {
+                flex-direction: column;
+                gap: 16px;
+                padding: 0 16px;
+                max-width: 100%;
+            }
+            
+            .panel {
+                padding: 20px;
+                margin-bottom: 16px;
+                max-height: none;
+                min-height: 400px;
+            }
+            
+            .flex-row {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .input-style, .textarea-style, .select-style {
+                padding: 12px 16px;
+                font-size: 16px; /* Prevents zoom on iOS */
+                min-height: 44px; /* Touch-friendly size */
+            }
+            
+            .section {
+                margin-bottom: 24px;
+                padding: 16px;
+            }
+            
+            .status-info {
+                padding: 12px 16px;
+                font-size: 13px;
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+
+        /* Large mobile styles (481px - 768px) */
+        @media (max-width: 768px) and (min-width: 481px) {
+            .container {
+                padding: 0 20px;
+            }
+            
+            .panel {
+                padding: 24px;
+            }
+            
+            .btn-primary, .btn-secondary, .btn-copy {
+                padding: 14px 24px;
+                font-size: 15px;
+                min-width: 140px;
+            }
+        }
+
+        /* Small mobile styles (max-width: 480px) */
+        @media (max-width: 480px) {
+            .app-header h1 {
+                font-size: 20px !important;
+            }
+            
+            .container {
+                padding: 0 12px;
+            }
+            
+            .panel {
+                padding: 16px;
+                border-radius: 6px;
+            }
+            
+            .controls {
+                padding: 10px 12px;
+            }
+            
+            .btn-primary, .btn-secondary, .btn-copy {
+                padding: 12px 16px;
+                font-size: 14px;
+                min-width: 100px;
+                width: 100%;
+                margin: 2px 0;
+            }
+            
+            .section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+        }
+
+        /* Collapsible sections */
+        .collapsible-header {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            user-select: none;
+            background: #f8f9fa;
+            margin: -16px -16px 16px -16px;
+            padding: 12px 16px;
+            border-radius: 6px 6px 0 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .collapsible-header:hover {
+            background: #e9ecef;
+        }
+        
+        .collapsible-icon {
+            transition: transform 0.2s ease;
+            font-size: 14px;
+            color: #666;
+            margin-left: 8px;
+        }
+        
+        .collapsible-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+        
+        .collapsible-content {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .collapsible-content.collapsed {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1 style="margin: 0; font-size: 28px;">
+            📧 The Wharton Club of the United Kingdom Newsletter Builder
+        </h1>
+        <p style="margin: 8px 0 0 0; opacity: 0.9;">
+            Create and customize your newsletter, then copy the HTML for NationBuilder
+        </p>
+    </div>
+
+    <div class="controls">
+        <button class="btn-primary" onclick="newFile()">🆕 New Project</button>
+        <button class="btn-primary" onclick="loadJSON()">📁 Open</button>
+        <button class="btn-primary" onclick="saveFile()">💾 Save</button>
+        <button class="btn-secondary" onclick="saveAsFile()">💾 Save As...</button>
+        <button class="btn-copy" onclick="copyHTML()">📋 Copy HTML for NationBuilder</button>
+        <button class="btn-secondary" onclick="toggleEditor()">🔄 Toggle Editor</button>
+    </div>
+
+    <div class="status-info">
+        <div class="status-badge" id="fileStatus">
+            📄 <span id="fileName">Untitled Newsletter</span><span id="unsavedIndicator"></span>
+        </div>
+        <div class="status-badge" id="saveStatus" style="display: none;">
+            ✅ <span id="saveTime"></span>
+        </div>
+        <div class="status-badge" id="fileHandleStatus" style="display: none; background: #d4edda; border-color: #c3e6cb; color: #155724;">
+            🔗 File linked - saves update original
+        </div>
+        <div class="status-badge" id="noFileHandleWarning" style="display: none; background: #fff3cd; border-color: #ffeaa7; color: #856404;">
+            ⚠️ Browser limitation: saves create new files
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="panel" id="editorPanel">
+            <div id="editor"></div>
+        </div>
+        
+        <div class="panel">
+            <div id="preview"></div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+
+        // Minimal Rich Text Editor Component for Testing
+        function RichTextEditor({ content, onChange, placeholder }) {
+            const [editorContent, setEditorContent] = useState(content || '');
+            const [showColorPicker, setShowColorPicker] = useState(false);
+            const [currentFontSize, setCurrentFontSize] = useState('');
+            const [history, setHistory] = useState([content || '']);
+            const [historyIndex, setHistoryIndex] = useState(0);
+            const editorRef = React.useRef(null);
+            const isUndoRedoOperation = React.useRef(false);
+            const saveHistoryTimeoutRef = React.useRef(null);
+            const lastSavedContent = React.useRef(content || '');
+            const emitChangeTimeoutRef = React.useRef(null);
+
+            const saveToHistory = (content) => {
+                if (isUndoRedoOperation.current) return;
+                if (content === lastSavedContent.current) return; // Don't save duplicate content
+                
+                lastSavedContent.current = content;
+                
+                setHistory(prev => {
+                    const newHistory = prev.slice(0, historyIndex + 1);
+                    newHistory.push(content);
+                    // Limit history to 50 entries
+                    if (newHistory.length > 50) {
+                        newHistory.shift();
+                        return newHistory;
+                    }
+                    return newHistory;
+                });
+                setHistoryIndex(prev => prev + 1);
+            };
+
+            const debouncedSaveToHistory = React.useCallback((content) => {
+                if (saveHistoryTimeoutRef.current) {
+                    clearTimeout(saveHistoryTimeoutRef.current);
+                }
+                saveHistoryTimeoutRef.current = setTimeout(() => {
+                    saveToHistory(content);
+                }, 2000); // Increased delay to reduce history saves
+            }, []);
+
+            const cleanContent = React.useCallback((html) => {
+                // Optimized content cleaning - only clean when necessary
+                if (!html) return '';
+                
+                // Quick check - if content looks clean already, return as-is
+                if (html.startsWith('<p>') && !html.includes('<div>') && !html.includes('<p></p>')) {
+                    return html;
+                }
+                
+                // Only perform expensive regex operations when needed
+                let cleaned = html
+                    .replace(/<p><\/p>/g, '')
+                    .replace(/<div><\/div>/g, '')
+                    .replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br>') // Remove double breaks
+                    .replace(/<div>/g, '<p>') // Convert divs to paragraphs
+                    .replace(/<\/div>/g, '</p>')
+                    .trim();
+                
+                // Quick structural element check
+                const hasStructuralElements = cleaned.includes('<ul') || cleaned.includes('<ol') || 
+                                            cleaned.includes('<blockquote') || cleaned.includes('<hr');
+                
+                // Ensure content has proper paragraph structure
+                if (cleaned && !hasStructuralElements && !cleaned.startsWith('<p') && !cleaned.includes('<br>')) {
+                    cleaned = `<p>${cleaned}</p>`;
+                }
+                
+                return cleaned;
+            }, []);
+
+            const isProcessingChange = React.useRef(false);
+
+            const handleContentChange = (e) => {
+                // EMERGENCY MINIMAL VERSION - no complex processing
+                const content = e.target.innerHTML;
+                setEditorContent(content);
+                emitChangeDebounced(content);
+                updatePlaceholderState(); // This is still needed for placeholder behavior
+            };
+            
+            const updatePlaceholderState = () => {
+                if (editorRef.current) {
+                    const content = editorRef.current.textContent || editorRef.current.innerText || '';
+                    const isEmpty = content.trim() === '';
+                    if (isEmpty) {
+                        editorRef.current.classList.add('show-placeholder');
+                    } else {
+                        editorRef.current.classList.remove('show-placeholder');
+                    }
+                }
+            };
+
+            const executeCommand = (command, value = null) => {
+                // Simplified but functional version
+                if (editorRef.current) {
+                    editorRef.current.focus();
+                    document.execCommand(command, false, value);
+                    
+                    // Simple update without complex processing
+                    const newContent = editorRef.current.innerHTML;
+                    setEditorContent(newContent);
+                    emitChangeDebounced(newContent);
+                }
+            };
+
+            const insertLineBreak = () => {
+                executeCommand('insertHTML', '<br>');
+            };
+
+            const insertParagraph = () => {
+                executeCommand('insertHTML', '<p><br></p>');
+            };
+
+            // Comprehensive color palette
+            const colors = [
+                '#000000', '#333333', '#666666', '#999999', '#CCCCCC', '#FFFFFF', '#F44336', '#E91E63',
+                '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688', '#4CAF50',
+                '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722', '#795548', '#607D8B',
+                '#990000', '#B71C1C', '#880E4F', '#4A148C', '#311B92', '#1A237E', '#0D47A1', '#01579B',
+                '#006064', '#004D40', '#1B5E20', '#33691E', '#827717', '#F57F17', '#FF6F00', '#E65100',
+                '#011F5B', '#8B0000', '#800080', '#008000', '#000080', '#FF0000', '#00FF00', '#0000FF'
+            ];
+
+            const updateCurrentFormatting = () => {
+                if (editorRef.current) {
+                    try {
+                        const selection = window.getSelection();
+                        if (selection.rangeCount > 0) {
+                            const range = selection.getRangeAt(0);
+                            const element = range.commonAncestorContainer.nodeType === Node.TEXT_NODE 
+                                ? range.commonAncestorContainer.parentElement 
+                                : range.commonAncestorContainer;
+                            
+                            // Get computed font size
+                            if (element && element.style) {
+                                const computedStyle = window.getComputedStyle(element);
+                                const fontSize = computedStyle.fontSize;
+                                
+                                // Convert fontSize to document.execCommand font size values (1-7)
+                                const pixelSize = parseInt(fontSize);
+                                let fontSizeValue = '';
+                                if (pixelSize <= 10) fontSizeValue = '1';
+                                else if (pixelSize <= 13) fontSizeValue = '2';
+                                else if (pixelSize <= 16) fontSizeValue = '3';
+                                else if (pixelSize <= 18) fontSizeValue = '4';
+                                else if (pixelSize <= 24) fontSizeValue = '5';
+                                else if (pixelSize <= 32) fontSizeValue = '6';
+                                else fontSizeValue = '7';
+                                
+                                setCurrentFontSize(fontSizeValue);
+                            }
+                        }
+                    } catch (e) {
+                        // Fallback for any errors
+                        setCurrentFontSize('');
+                    }
+                }
+            };
+
+            const changeFontSize = (size) => {
+                executeCommand('fontSize', size);
+                setCurrentFontSize(size);
+            };
+
+            const changeTextColor = (color) => {
+                executeCommand('foreColor', color);
+                setShowColorPicker(false);
+            };
+
+            const handleUndo = () => {
+                if (historyIndex > 0) {
+                    isUndoRedoOperation.current = true;
+                    isProcessingChange.current = true; // Prevent infinite loops
+                    
+                    try {
+                        // Clear any pending saves
+                        if (saveHistoryTimeoutRef.current) {
+                            clearTimeout(saveHistoryTimeoutRef.current);
+                        }
+                        
+                        const previousContent = history[historyIndex - 1];
+                        setEditorContent(previousContent);
+                        emitChangeDebounced(previousContent);
+                        setHistoryIndex(historyIndex - 1);
+                        lastSavedContent.current = previousContent;
+                        
+                        // Update the editor content
+                        if (editorRef.current) {
+                            editorRef.current.innerHTML = previousContent;
+                        }
+                    } finally {
+                        setTimeout(() => {
+                            isUndoRedoOperation.current = false;
+                            isProcessingChange.current = false;
+                            updateCurrentFormatting();
+                        }, 10);
+                    }
+                }
+            };
+
+            const handleRedo = () => {
+                if (historyIndex < history.length - 1) {
+                    isUndoRedoOperation.current = true;
+                    isProcessingChange.current = true; // Prevent infinite loops
+                    
+                    try {
+                        // Clear any pending saves
+                        if (saveHistoryTimeoutRef.current) {
+                            clearTimeout(saveHistoryTimeoutRef.current);
+                        }
+                        
+                        const nextContent = history[historyIndex + 1];
+                        setEditorContent(nextContent);
+                        emitChangeDebounced(nextContent);
+                        setHistoryIndex(historyIndex + 1);
+                        lastSavedContent.current = nextContent;
+                        
+                        // Update the editor content
+                        if (editorRef.current) {
+                            editorRef.current.innerHTML = nextContent;
+                        }
+                    } finally {
+                        setTimeout(() => {
+                            isUndoRedoOperation.current = false;
+                            isProcessingChange.current = false;
+                            updateCurrentFormatting();
+                        }, 10);
+                    }
+                }
+            };
+
+            const handleSelectionChange = () => {
+                updateCurrentFormatting();
+            };
+
+            useEffect(() => {
+                const cleanedContent = cleanContent(content || '');
+                setEditorContent(cleanedContent);
+                lastSavedContent.current = cleanedContent;
+                
+                // Clear any pending saves when content changes from outside
+                if (saveHistoryTimeoutRef.current) {
+                    clearTimeout(saveHistoryTimeoutRef.current);
+                }
+                
+                // Update placeholder state when content changes
+                setTimeout(updatePlaceholderState, 0);
+                
+                // Reset history completely when content changes from outside (like loading JSON)
+                setHistory([cleanedContent]);
+                setHistoryIndex(0);
+                
+                // Update editor DOM content to match, but only if it's actually different
+                if (editorRef.current) {
+                    const currentHTML = editorRef.current.innerHTML;
+                    const normalizedCurrent = cleanContent(currentHTML || '');
+                    if (normalizedCurrent !== cleanedContent) {
+                        isUndoRedoOperation.current = true;
+                        
+                        // Save cursor position
+                        const selection = window.getSelection();
+                        let range = null;
+                        if (selection.rangeCount > 0) {
+                            range = selection.getRangeAt(0).cloneRange();
+                        }
+                        
+                        editorRef.current.innerHTML = cleanedContent;
+                        
+                        // Restore cursor position if possible
+                        if (range && editorRef.current.contains(range.startContainer)) {
+                            try {
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+                            } catch (e) {
+                                // If restoring fails, place cursor at end
+                                const newRange = document.createRange();
+                                newRange.selectNodeContents(editorRef.current);
+                                newRange.collapse(false);
+                                selection.removeAllRanges();
+                                selection.addRange(newRange);
+                            }
+                        }
+                        
+                        setTimeout(() => {
+                            isUndoRedoOperation.current = false;
+                        }, 10);
+                    }
+                }
+            }, [content]);
+
+            useEffect(() => {
+                const handleClickOutside = (event) => {
+                    if (showColorPicker && !event.target.closest('.color-picker-container')) {
+                        setShowColorPicker(false);
+                    }
+                };
+                document.addEventListener('click', handleClickOutside);
+                document.addEventListener('selectionchange', handleSelectionChange);
+                return () => {
+                    document.removeEventListener('click', handleClickOutside);
+                    document.removeEventListener('selectionchange', handleSelectionChange);
+                    // Clean up all timeouts to prevent memory leaks
+                    if (saveHistoryTimeoutRef.current) {
+                        clearTimeout(saveHistoryTimeoutRef.current);
+                        saveHistoryTimeoutRef.current = null;
+                    }
+                    if (emitChangeTimeoutRef.current) {
+                        clearTimeout(emitChangeTimeoutRef.current);
+                        emitChangeTimeoutRef.current = null;
+                    }
+                };
+            }, []);
+
+            const emitChangeDebounced = React.useCallback((val) => {
+                if (emitChangeTimeoutRef.current) {
+                    clearTimeout(emitChangeTimeoutRef.current);
+                }
+                emitChangeTimeoutRef.current = setTimeout(() => {
+                    onChange && onChange(val);
+                }, 1000); // Increased delay to reduce frequency
+            }, [onChange]);
+
+            return (
+                <div className="rich-editor">
+                    <div className="editor-toolbar">
+                        {/* Row 1: Essential Formatting */}
+                        <div className="editor-toolbar-row">
+                            {/* History Group */}
+                            <div className="toolbar-group">
+                                <button 
+                                    className="editor-btn" 
+                                    onClick={handleUndo} 
+                                    disabled={historyIndex <= 0}
+                                    title="Undo"
+                                >
+                                    ↶
+                                </button>
+                                <button 
+                                    className="editor-btn" 
+                                    onClick={handleRedo} 
+                                    disabled={historyIndex >= history.length - 1}
+                                    title="Redo"
+                                >
+                                    ↷
+                                </button>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+                            
+                            {/* Basic Text Style Group */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => executeCommand('bold')} title="Bold">
+                                    <strong>B</strong>
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('italic')} title="Italic">
+                                    <em>I</em>
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('underline')} title="Underline">
+                                    <u>U</u>
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('strikeThrough')} title="Strikethrough">
+                                    <s>S</s>
+                                </button>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+                            
+                            {/* Lists Group */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => executeCommand('insertUnorderedList')} title="Bullet Points">
+                                    •
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('insertOrderedList')} title="Numbered List">
+                                    1.
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('indent')} title="Increase Indent">
+                                    ⇥
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('outdent')} title="Decrease Indent">
+                                    ⇤
+                                </button>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+                            
+                            {/* Alignment Group */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => executeCommand('justifyLeft')} title="Align Left">
+                                    ⬅
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('justifyCenter')} title="Align Center">
+                                    ↔
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('justifyRight')} title="Align Right">
+                                    ➡
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {/* Row 2: Advanced Formatting */}
+                        <div className="editor-toolbar-row">
+                            {/* Font & Size Group */}
+                            <div className="toolbar-group">
+                                <select 
+                                    className="editor-select" 
+                                    onChange={(e) => executeCommand('fontName', e.target.value)}
+                                    title="Font Family"
+                                    style={{minWidth: '100px', fontSize: '12px'}}
+                                >
+                                    <option value="">Font</option>
+                                    <option value="Arial">Arial</option>
+                                    <option value="Georgia">Georgia</option>
+                                    <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Helvetica">Helvetica</option>
+                                    <option value="Verdana">Verdana</option>
+                                </select>
+                                
+                                <select 
+                                    className="editor-select" 
+                                    onChange={(e) => changeFontSize(e.target.value)}
+                                    title="Font Size"
+                                    value={currentFontSize}
+                                    style={{minWidth: '60px', fontSize: '12px'}}
+                                >
+                                    <option value="">Size</option>
+                                    <option value="1">8pt</option>
+                                    <option value="2">10pt</option>
+                                    <option value="3">12pt</option>
+                                    <option value="4">14pt</option>
+                                    <option value="5">18pt</option>
+                                    <option value="6">24pt</option>
+                                </select>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+
+                            {/* Color Group */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => executeCommand('foreColor', '#000000')} title="Black Text">
+                                    ⚫
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('foreColor', '#990000')} title="Wharton Red">
+                                    🔴
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('foreColor', '#011F5B')} title="Wharton Blue">
+                                    🔵
+                                </button>
+                        
+                                <div className="color-picker-container" style={{position: 'relative', display: 'inline-block'}}>
+                                    <button 
+                                        className="editor-btn" 
+                                        onClick={() => setShowColorPicker(!showColorPicker)} 
+                                        title="More Colors"
+                                    >
+                                        🎨
+                                    </button>
+                                    
+                                    {/* Color Grid */}
+                                    <div className={`color-grid ${showColorPicker ? 'show' : ''}`}>
+                                        <div style={{padding: '8px', fontSize: '12px', fontWeight: 'bold', borderBottom: '1px solid #ddd'}}>
+                                            Text Color
+                                        </div>
+                                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '2px', padding: '8px'}}>
+                                            {colors.map((color, index) => (
+                                                <div
+                                                    key={`text-${index}`}
+                                                    className="color-swatch"
+                                                    style={{ backgroundColor: color }}
+                                                    onClick={() => changeTextColor(color)}
+                                                    title={`Text: ${color}`}
+                                                />
+                                            ))}
+                                        </div>
+                                        <div style={{padding: '8px', fontSize: '12px', fontWeight: 'bold', borderBottom: '1px solid #ddd'}}>
+                                            Background Color
+                                        </div>
+                                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '2px', padding: '8px'}}>
+                                            {colors.map((color, index) => (
+                                                <div
+                                                    key={`bg-${index}`}
+                                                    className="color-swatch"
+                                                    style={{ backgroundColor: color }}
+                                                    onClick={() => executeCommand('hiliteColor', color)}
+                                                    title={`Background: ${color}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+                            
+                            {/* Special Formatting Group */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => executeCommand('subscript')} title="Subscript">
+                                    X₂
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('superscript')} title="Superscript">
+                                    X²
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('insertHorizontalRule')} title="Horizontal Line">
+                                    ―
+                                </button>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+                            
+                            {/* Actions Group */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => {
+                                    const url = prompt('Enter URL:');
+                                    if (url) executeCommand('createLink', url);
+                                }} title="Insert Link">
+                                    🔗
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('formatBlock', 'blockquote')} title="Block Quote">
+                                    ❝
+                                </button>
+                                <button className="editor-btn" onClick={() => executeCommand('removeFormat')} title="Clear Formatting">
+                                    🧹
+                                </button>
+                            </div>
+                            
+                            <span style={{borderLeft: '1px solid #ddd', margin: '0 4px', height: '24px'}}></span>
+                            
+                            {/* Spacing Controls */}
+                            <div className="toolbar-group">
+                                <button className="editor-btn" onClick={() => {
+                                    if (editorRef.current) {
+                                        editorRef.current.focus();
+                                        let content = editorRef.current.innerHTML;
+                                        // Remove extra line breaks and spaces very aggressively
+                                        content = content
+                                            // First handle paragraph breaks and margins
+                                            .replace(/<p[^>]*style="[^"]*margin[^"]*"[^>]*>/g, '<p>') // Remove margin styles from p tags
+                                            .replace(/<p[^>]*style="[^"]*line-height[^"]*"[^>]*>/g, '<p>') // Remove line-height styles from p tags
+                                            .replace(/<div[^>]*style="[^"]*line-height[^"]*"[^>]*>/g, '<div>') // Remove line-height from div tags
+                                            // Handle line breaks
+                                            .replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br>') // Remove double line breaks
+                                            .replace(/<br\s*\/?>/g, ' ') // Convert all remaining line breaks to spaces
+                                            // Handle paragraph spacing
+                                            .replace(/(<\/p>)\s*(<p[^>]*>)/g, '$1 $2') // Add single space between paragraphs
+                                            .replace(/(<p[^>]*>)\s*<\/p>/g, '') // Remove empty paragraphs
+                                            // Handle list spacing  
+                                            .replace(/(<\/li>)\s*(<li[^>]*>)/g, '$1 $2') // Add single space between list items
+                                            // Handle general spacing
+                                            .replace(/\s{2,}/g, ' ') // Replace multiple spaces with single space
+                                            .replace(/>\s+</g, '><') // Remove spaces between HTML tags
+                                            .replace(/(<p[^>]*>)\s+/g, '$1') // Remove spaces at start of paragraphs
+                                            .replace(/\s+(<\/p>)/g, '$1') // Remove spaces at end of paragraphs
+                                            .replace(/(<div[^>]*>)\s+/g, '$1') // Remove spaces at start of divs
+                                            .replace(/\s+(<\/div>)/g, '$1') // Remove spaces at end of divs
+                                            // Final cleanup
+                                            .replace(/\s+$/, '') // Remove trailing spaces
+                                            .replace(/^\s+/, '') // Remove leading spaces
+                                            .trim();
+                                        
+                                        // If content becomes empty, add a paragraph
+                                        if (!content || content === '<p></p>' || content === '<div></div>') {
+                                            content = '<p><br></p>';
+                                        }
+                                        
+                                        // Ensure content has proper structure
+                                        if (content && !content.match(/^<(p|div)/)) {
+                                            content = `<p>${content}</p>`;
+                                        }
+                                        
+                                        editorRef.current.innerHTML = content;
+                                        setEditorContent(content);
+                                        emitChangeDebounced(content);
+                                        saveToHistory(content);
+                                        updatePlaceholderState();
+                                    }
+                                }} title="Remove All Spacing & Compact Text">
+                                    🗜️
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div 
+                        ref={editorRef}
+                        className="editor-content"
+                        contentEditable
+                        onInput={handleContentChange}
+                        onBlur={(e) => {
+                            handleContentChange(e);
+                            updatePlaceholderState();
+                        }}
+                        onFocus={updatePlaceholderState}
+                        onMouseUp={handleSelectionChange}
+                        onKeyUp={handleSelectionChange}
+                        style={{
+                            minHeight: '100px',
+                            outline: 'none',
+                            padding: '8px'
+                        }}
+                        data-placeholder={placeholder}
+                        suppressContentEditableWarning={true}
+                    />
+                </div>
+            );
+        }
+
+        // Newsletter Preview Component (recreating the original table structure)
+        function NewsletterPreview({ data }) {
+            const colors = {
+                primary: '#990000', // Wharton Red
+                secondary: '#011F5B', // Wharton Blue
+                text: {
+                    primary: '#333333',
+                    secondary: '#666666'
+                },
+                divider: '#e0e0e0'
+            };
+
+            const styles = {
+                table: {
+                    width: '100%',
+                    maxWidth: '700px',
+                    margin: '0 auto',
+                    fontFamily: 'Arial, sans-serif',
+                    backgroundColor: '#ffffff',
+                    borderCollapse: 'collapse',
+                    minWidth: '320px'
+                },
+                header: {
+                    backgroundColor: colors.primary,
+                    color: '#ffffff',
+                    padding: '12px 16px',
+                    textAlign: 'center',
+                    height: '80px',
+                    display: 'table-cell',
+                    verticalAlign: 'middle'
+                },
+                headerTitle: {
+                    fontSize: '20px',
+                    margin: '0',
+                    fontWeight: 'bold',
+                    lineHeight: '1.3'
+                },
+                headerSubtitle: {
+                    fontSize: '14px',
+                    margin: '6px 0 0 0',
+                    opacity: 0.95,
+                    lineHeight: '1.3'
+                },
+                section: {
+                    padding: '20px 16px'
+                },
+                heading: {
+                    fontSize: '18px',
+                    color: colors.text.primary,
+                    marginBottom: '12px',
+                    fontWeight: 'bold',
+                    lineHeight: '1.3'
+                },
+                subheading: {
+                    fontSize: '16px',
+                    color: colors.text.primary,
+                    marginBottom: '8px',
+                    fontWeight: '600',
+                    lineHeight: '1.3'
+                },
+                text: {
+                    color: colors.text.secondary,
+                    lineHeight: '1.6',
+                    margin: '0 0 16px 0',
+                    fontSize: '14px'
+                },
+                communityBox: {
+                    backgroundColor: colors.primary,
+                    color: '#ffffff',
+                    padding: '12px 16px',
+                    borderRadius: '6px',
+                    marginBottom: '8px',
+                    display: 'block'
+                },
+                footer: {
+                    padding: '20px 16px',
+                    borderTop: '1px solid #eaeaea',
+                    textAlign: 'center',
+                    backgroundColor: '#f8f8f8'
+                },
+                link: {
+                    color: colors.primary,
+                    textDecoration: 'none'
+                },
+                footerLink: {
+                    color: colors.secondary,
+                    textDecoration: 'none'
+                }
+            };
+
+            const renderSectionContent = (section) => {
+                return (
+                    <div>
+                        {/* Render subtitle if provided */}
+                        {section.subtitle && (
+                            <h3 style={{
+                                ...styles.subheading,
+                                marginTop: '0',
+                                marginBottom: '12px',
+                                fontSize: '18px',
+                                fontWeight: 'bold',
+                                color: '#333'
+                            }} dangerouslySetInnerHTML={{ __html: section.subtitle }}></h3>
+                        )}
+
+                        {/* Render image if provided */}
+                        {section.imageUrl && (
+                            <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+                                <img 
+                                    src={section.imageUrl} 
+                                    alt={section.imageAlt || 'Section image'} 
+                                    className="responsive-image"
+                                    style={{ 
+                                        maxWidth: '100%', 
+                                        height: 'auto',
+                                        borderRadius: '4px',
+                                        border: '1px solid #ddd'
+                                    }}
+                                />
+                            </div>
+                        )}
+
+                        {/* Render description if provided */}
+                        {section.description && (
+                            <div 
+                                className="responsive-text"
+                                style={{ 
+                                    ...styles.text, 
+                                    marginBottom: section.url ? '16px' : '0',
+                                    fontFamily: 'Arial, sans-serif'
+                                }}
+                                dangerouslySetInnerHTML={{ __html: section.description }}
+                            />
+                        )}
+
+                        {/* Render URL button if provided */}
+                        {section.url && (
+                            <div style={{ marginTop: '16px' }}>
+                                <a 
+                                    href={section.url} 
+                                    style={{
+                                        display: 'inline-block',
+                                        backgroundColor: '#990000', // Wharton red
+                                        color: '#ffffff',
+                                        padding: '12px 24px',
+                                        textDecoration: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '14px',
+                                        fontWeight: 'bold',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontFamily: 'Arial, sans-serif'
+                                    }}
+                                    className="responsive-button"
+                                >
+                                    {section.buttonText || 'Learn More'}
+                                </a>
+                            </div>
+                        )}
+                    </div>
+                );
+            };
+
+            return (
+                <div>
+                    <h2 style={{ color: '#011F5B', marginBottom: '24px', textAlign: 'center' }}>
+                        👁 Newsletter Preview
+                    </h2>
+                    
+                    <table style={styles.table} className="responsive-table">
+                        <tbody>
+                            {/* Header */}
+                            {data.showHeader && (
+                                <tr>
+                                    <td style={styles.header} className="responsive-header">
+                                        <div 
+                                            style={styles.headerTitle}
+                                            dangerouslySetInnerHTML={{ __html: data.headerTitle || '' }}
+                                        />
+                                        <div 
+                                            style={styles.headerSubtitle}
+                                            dangerouslySetInnerHTML={{ __html: data.title || '' }}
+                                        />
+                                    </td>
+                                </tr>
+                            )}
+
+                            {/* Content */}
+                            {data.showGreeting && (
+                                <tr>
+                                    <td style={styles.section} className="responsive-td">
+                                        <div 
+                                            className="responsive-text"
+                                            style={styles.text}
+                                            dangerouslySetInnerHTML={{ __html: data.salutation || '' }}
+                                        />
+                                        <div 
+                                            className="responsive-text"
+                                            style={styles.text}
+                                            dangerouslySetInnerHTML={{ __html: data.greeting || '' }}
+                                        />
+                                    </td>
+                                </tr>
+                            )}
+
+                            {/* Dynamic Sections */}
+                            {data.sections.map(section => (
+                                <tr key={section.id}>
+                                    <td style={styles.section} className="responsive-td">
+                                        <h2 style={{...styles.heading, textAlign: section.titleAlignment || 'left'}} dangerouslySetInnerHTML={{ __html: section.title || '' }}></h2>
+                                        {renderSectionContent(section)}
+                                    </td>
+                                </tr>
+                            ))}
+
+                            {/* Community Links */}
+                            {data.showCommunityLinks && (
+                                <tr>
+                                    <td style={styles.section} className="responsive-td">
+                                        <h2 style={styles.heading}>Join our Communities</h2>
+                                        {data.communityLinks.map((link, index) => (
+                                            <div key={index} style={{ marginBottom: '16px' }}>
+                                                <a href={link.url} style={{ ...styles.communityBox, textDecoration: 'none', fontWeight: 'bold' }}>
+                                                    {link.title}
+                                                </a>
+                                                <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>{link.description}</p>
+                                            </div>
+                                        ))}
+                                    </td>
+                                </tr>
+                            )}
+
+                            {/* Signature */}
+                            {data.showSignature && (
+                                <tr>
+                                    <td style={styles.section} className="responsive-td">
+                                        <div 
+                                            className="responsive-text"
+                                            style={{ ...styles.text, marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #eee' }}
+                                            dangerouslySetInnerHTML={{ __html: data.signature || '' }}
+                                        />
+                                    </td>
+                                </tr>
+                            )}
+
+                            {/* Footer */}
+                            <tr>
+                                <td style={styles.footer} className="responsive-td">
+                                    <p style={styles.text} className="responsive-text">
+                                        <strong>Stay connected with us:</strong><br/>
+                                        <a href="https://www.whartonclubuk.net/" style={styles.footerLink}>Website</a> | {' '}
+                                        <a href="https://www.linkedin.com/company/wharton-club-uk/" style={styles.footerLink}>LinkedIn</a>
+                                    </p>
+                                    <p style={styles.text} className="responsive-text">
+                                        <strong>Contact us:</strong> <a href="mailto:webmaster@whartonclubuk.net" style={styles.footerLink}>webmaster@whartonclubuk.net</a>
+                                    </p>
+                                    <p style={styles.text} className="responsive-text">
+                                        The Wharton Club of the United Kingdom<br/>
+                                        Russell House, Oxford Road<br/>
+                                        Bournemouth, Dorset, BH8 8EX
+                                    </p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            );
+        }
+
+        // Main Newsletter App
+        function NewsletterApp() {
+            const [showEditor, setShowEditor] = useState(true);
+            const [fileName, setFileName] = useState('Untitled Newsletter');
+            const [currentFilePath, setCurrentFilePath] = useState('');
+            const [lastSaved, setLastSaved] = useState(null);
+            const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+            const [isNewFile, setIsNewFile] = useState(true);
+            const [fileHandle, setFileHandle] = useState(null);
+            
+            const [collapsedSections, setCollapsedSections] = useState({
+                basicInfo: true,
+                toggles: false,
+                communityLinks: true,
+                signature: true
+            });
+
+
+
+            const toggleSection = (sectionName) => {
+                setCollapsedSections(prev => ({
+                    ...prev,
+                    [sectionName]: !prev[sectionName]
+                }));
+            };
+
+            const [data, setData] = useState({
+                headerTitle: '<p>March 2024 Newsletter</p>',
+                title: '<p>The Wharton Club of the United Kingdom Newsletter</p>',
+                month: '<p>March</p>',
+                year: '<p>2024</p>',
+                salutation: '<p>{{recipient.first_name_or_friend}} --</p>',
+                greeting: '<p>We hope this newsletter finds you well. We\'re excited to share updates about our recent activities and upcoming events.</p>',
+                sections: [],
+                // Toggle controls for template sections
+                showHeader: true,
+                showGreeting: true,
+                showCommunityLinks: true,
+                showSignature: true,
+                communityLinks: [
+                    {
+                        title: 'Become a Club Member',
+                        description: 'Join The Wharton Club of the United Kingdom to access exclusive events, networking opportunities, and career resources.',
+                        url: 'https://www.whartonclubuk.net/become_a_member'
+                    },
+                    {
+                        title: 'Join our Community',
+                        description: 'Stay connected with fellow alumni through our main WhatsApp group.',
+                        url: 'https://forms.gle/CDvFgFGrgLFZB3HL9'
+                    },
+                    {
+                        title: 'Join The Wharton Alumni AI Studio',
+                        description: 'Connect with AI and deep tech enthusiasts in our growing global community.',
+                        url: 'https://forms.gle/CoDwPjqsn8Hn1X8v7'
+                    }
+                ],
+                signature: '<p>Thank you again to all our event organizers and participants who made this year exceptional.</p><p>We look forward to building even more connections in the coming year!</p><p><strong>Warm regards,</strong></p><p><strong>George Gvishiani WG\'08</strong></p><p><em>President, The Wharton Club of the United Kingdom</em></p>'
+            });
+
+            const updateField = (field, value) => {
+                setData(prev => ({ ...prev, [field]: value }));
+                setHasUnsavedChanges(true);
+            };
+
+            // Remove this useEffect - it was causing performance issues by running on every data change
+
+            // Check if browser supports File System Access API
+            const supportsFileSystemAccess = () => {
+                return 'showSaveFilePicker' in window;
+            };
+
+            const addSection = () => {
+                const newSection = {
+                    id: Date.now().toString(),
+                    type: 'generic',
+                    title: '', // User-defined section title (optional)
+                    subtitle: '', // User-defined section subtitle (optional)
+                    description: '', // User-defined section description (optional)
+                    imageUrl: '', // User-uploaded image (optional)
+                    imageAlt: '', // Alt text for image (optional)
+                    imageWidth: undefined, // Image width (auto-calculated)
+                    imageHeight: undefined, // Image height (auto-calculated)
+                    url: '', // User-defined URL (optional, won't show if empty)
+                    buttonText: '', // User-defined button text (optional, defaults to "Learn More")
+                    titleAlignment: 'left' // Default alignment
+                };
+                setData(prev => ({
+                    ...prev,
+                    sections: [...prev.sections, newSection]
+                }));
+                setHasUnsavedChanges(true);
+            };
+
+            const updateSection = (sectionId, updates) => {
+                setData(prev => ({
+                    ...prev,
+                    sections: prev.sections.map(section =>
+                        section.id === sectionId ? { ...section, ...updates } : section
+                    )
+                }));
+                setHasUnsavedChanges(true);
+            };
+
+            const removeSection = (sectionId) => {
+                setData(prev => ({
+                    ...prev,
+                    sections: prev.sections.filter(section => section.id !== sectionId)
+                }));
+                setHasUnsavedChanges(true);
+            };
+
+            const moveSectionUp = (sectionId) => {
+                setData(prev => {
+                    const sections = [...prev.sections];
+                    const currentIndex = sections.findIndex(s => s.id === sectionId);
+                    if (currentIndex > 0) {
+                        [sections[currentIndex - 1], sections[currentIndex]] = [sections[currentIndex], sections[currentIndex - 1]];
+                    }
+                    return { ...prev, sections };
+                });
+            };
+
+            const moveSectionDown = (sectionId) => {
+                setData(prev => {
+                    const sections = [...prev.sections];
+                    const currentIndex = sections.findIndex(s => s.id === sectionId);
+                    if (currentIndex < sections.length - 1) {
+                        [sections[currentIndex], sections[currentIndex + 1]] = [sections[currentIndex + 1], sections[currentIndex]];
+                    }
+                    return { ...prev, sections };
+                });
+                setHasUnsavedChanges(true);
+            };
+
+            // Drag and Drop handlers
+            const [draggedSectionId, setDraggedSectionId] = useState(null);
+
+            const handleDragStart = (e, sectionId) => {
+                setDraggedSectionId(sectionId);
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', e.target.outerHTML);
+                e.target.classList.add('dragging');
+            };
+
+            const handleDragOver = (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            };
+
+            const handleDragEnter = (e) => {
+                e.preventDefault();
+                e.target.closest('.draggable-section')?.classList.add('drag-over');
+            };
+
+            const handleDragLeave = (e) => {
+                e.target.closest('.draggable-section')?.classList.remove('drag-over');
+            };
+
+            const handleDrop = (e, targetSectionId) => {
+                e.preventDefault();
+                e.target.closest('.draggable-section')?.classList.remove('drag-over');
+                
+                if (draggedSectionId && draggedSectionId !== targetSectionId) {
+                    setData(prev => {
+                        const sections = [...prev.sections];
+                        const draggedIndex = sections.findIndex(s => s.id === draggedSectionId);
+                        const targetIndex = sections.findIndex(s => s.id === targetSectionId);
+                        
+                        if (draggedIndex !== -1 && targetIndex !== -1) {
+                            // Remove dragged section and insert at target position
+                            const [draggedSection] = sections.splice(draggedIndex, 1);
+                            sections.splice(targetIndex, 0, draggedSection);
+                        }
+                        
+                        return { ...prev, sections };
+                    });
+                    setHasUnsavedChanges(true);
+                }
+                setDraggedSectionId(null);
+            };
+
+            const handleDragEnd = (e) => {
+                e.target.classList.remove('dragging');
+                document.querySelectorAll('.draggable-section').forEach(el => {
+                    el.classList.remove('drag-over');
+                });
+                setDraggedSectionId(null);
+            };
+
+            const addItemToSection = (sectionId) => {
+                const section = data.sections.find(s => s.id === sectionId);
+                if (!section) return;
+
+                const newItem = section.type === 'events' || section.type === 'partner-events'
+                    ? { title: '', description: '', date: '', time: '', location: '', registrationUrl: '#' }
+                    : section.type === 'alumni-spotlight'
+                    ? { title: '', description: '', name: '', class: '', readMoreUrl: '#' }
+                    : section.type === 'community-links'
+                    ? { title: '', description: '', url: '' }
+                    : { title: '', description: '' };
+
+                updateSection(sectionId, {
+                    items: [...section.items, newItem]
+                });
+            };
+
+            const updateItemInSection = (sectionId, itemIndex, field, value) => {
+                const section = data.sections.find(s => s.id === sectionId);
+                if (!section) return;
+
+                const newItems = [...section.items];
+                newItems[itemIndex] = { ...newItems[itemIndex], [field]: value };
+                updateSection(sectionId, { items: newItems });
+            };
+
+            const removeItemFromSection = (sectionId, itemIndex) => {
+                const section = data.sections.find(s => s.id === sectionId);
+                if (!section) return;
+
+                const newItems = section.items.filter((_, i) => i !== itemIndex);
+                updateSection(sectionId, { items: newItems });
+            };
+
+            const updateCommunityLink = (index, field, value) => {
+                setData(prev => {
+                    const newCommunityLinks = [...prev.communityLinks];
+                    newCommunityLinks[index] = { ...newCommunityLinks[index], [field]: value };
+                    return { ...prev, communityLinks: newCommunityLinks };
+                });
+                setHasUnsavedChanges(true);
+            };
+
+            const handleImageUpload = (sectionId, file) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const result = e.target.result;
+                    const img = new Image();
+                    img.onload = () => {
+                        const originalWidth = img.width;
+                        const originalHeight = img.height;
+                        const aspectRatio = originalWidth / originalHeight;
+                        
+                        const maxWidth = 500;
+                        const maxHeight = 400;
+                        
+                        let finalWidth = originalWidth;
+                        let finalHeight = originalHeight;
+                        
+                        if (originalWidth > maxWidth) {
+                            finalWidth = maxWidth;
+                            finalHeight = maxWidth / aspectRatio;
+                        }
+                        
+                        if (finalHeight > maxHeight) {
+                            finalHeight = maxHeight;
+                            finalWidth = maxHeight * aspectRatio;
+                        }
+                        
+                        updateSection(sectionId, { 
+                            imageUrl: result,
+                            imageAlt: file.name,
+                            imageWidth: Math.round(finalWidth),
+                            imageHeight: Math.round(finalHeight)
+                        });
+                    };
+                    img.src = result;
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const generateAltTextWithAssistant = (section) => {
+                if (!section.imageUrl) {
+                    alert('No image found to analyze');
+                    return;
+                }
+
+                // Count how many images are already in this section type across all sections
+                const sectionsWithSameName = data.sections.filter(s => s.title === section.title);
+                const imageCount = sectionsWithSameName.reduce((count, s) => count + (s.imageUrl ? 1 : 0), 0);
+                
+                // Create clean filename from section title
+                const cleanSectionName = section.title
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]/g, '_')
+                    .replace(/_+/g, '_')
+                    .replace(/^_|_$/g, '');
+                
+                // Create filename with section name and numbering if needed
+                const baseFilename = cleanSectionName || 'newsletter_section';
+                const filename = imageCount > 1 
+                    ? `${baseFilename}_${imageCount}` 
+                    : baseFilename;
+                
+                // Determine file extension from base64 data
+                const fileExtension = section.imageUrl.includes('jpeg') || section.imageUrl.includes('jpg') ? 'jpg' : 'png';
+
+                // Create a downloadable image file
+                const link = document.createElement('a');
+                link.href = section.imageUrl;
+                link.download = `${filename}.${fileExtension}`;
+                link.click();
+
+                // Create the Assistant prompt
+                const assistantPrompt = `Please analyze this newsletter image and generate professional alt text for accessibility. The alt text should:
+
+1. Be descriptive but concise (under 125 characters)
+2. Focus on the main subject and context
+3. Be appropriate for a professional newsletter
+4. Help screen readers understand the image content
+
+Please provide just the alt text without quotes or extra explanation.`;
+
+                // Copy prompt to clipboard
+                navigator.clipboard.writeText(assistantPrompt).then(() => {
+                    // Show instructions modal
+                    const instructions = `✅ Image downloaded and Assistant prompt copied to clipboard!
+
+📋 Next steps:
+1. The image file was downloaded to your computer
+2. The Assistant prompt is copied to your clipboard
+3. Go to Assistant and upload the downloaded image
+4. Paste the prompt (Ctrl/Cmd+V)
+5. Copy Assistant's alt text response
+6. Come back and paste it in the Alt Text field
+
+🤖 The Assistant prompt asks for professional, concise alt text perfect for newsletters.`;
+
+                    alert(instructions);
+                }).catch(() => {
+                    // Fallback if clipboard fails
+                    const instructions = `✅ Image downloaded!
+
+📋 Next steps:
+1. The image was downloaded to your computer
+2. Go to Assistant and upload the downloaded image
+3. Use this prompt: "${assistantPrompt}"
+4. Copy Assistant's alt text response
+5. Come back and paste it in the Alt Text field`;
+
+                    alert(instructions);
+                });
+            };
+
+            const saveFile = async () => {
+                if (isNewFile || !fileHandle) {
+                    // For new files or files without handle, behave like "Save As"
+                    return saveAsFile();
+                }
+
+                // Update existing file in place
+                try {
+                    const template = {
+                        name: fileName,
+                        data: data,
+                        lastModified: new Date().toISOString()
+                    };
+
+                    const dataStr = JSON.stringify(template, null, 2);
+
+                    if (supportsFileSystemAccess() && fileHandle) {
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(dataStr);
+                        await writable.close();
+                        
+                        setLastSaved(new Date());
+                        setHasUnsavedChanges(false);
+                        
+                        // Show brief success message
+                        const saveStatus = document.getElementById('saveStatus');
+                        if (saveStatus) {
+                            saveStatus.style.display = 'block';
+                            setTimeout(() => {
+                                if (saveStatus) saveStatus.style.display = 'none';
+                            }, 3000);
+                        }
+                    } else {
+                        // Fallback to download if file handle is not available
+                        return saveAsFile();
+                    }
+                } catch (error) {
+                    console.error('Error saving file:', error);
+                    alert('Error saving file. Please try Save As instead.');
+                    return saveAsFile();
+                }
+            };
+
+            const saveAsFile = async () => {
+                const name = prompt('Enter new newsletter name:', fileName !== 'Untitled Newsletter' ? fileName + ' Copy' : 'Newsletter Copy');
+                if (!name) return;
+
+                const template = {
+                    name: name,
+                    data: data,
+                    createdAt: new Date().toISOString(),
+                    lastModified: new Date().toISOString()
+                };
+
+                const dataStr = JSON.stringify(template, null, 2);
+
+                if (supportsFileSystemAccess()) {
+                    try {
+                        const newFileHandle = await window.showSaveFilePicker({
+                            suggestedName: `${name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`,
+                            types: [{
+                                description: 'JSON files',
+                                accept: { 'application/json': ['.json'] }
+                            }]
+                        });
+
+                        const writable = await newFileHandle.createWritable();
+                        await writable.write(dataStr);
+                        await writable.close();
+
+                        // Save As creates a new file and switches to it
+                        setFileName(name);
+                        setCurrentFilePath(newFileHandle.name);
+                        setFileHandle(newFileHandle);
+                        setIsNewFile(false);
+                        setLastSaved(new Date());
+                        setHasUnsavedChanges(false);
+                        
+                        alert(`New newsletter "${name}" saved successfully!`);
+                    } catch (error) {
+                        if (error.name !== 'AbortError') {
+                            console.error('Error saving file:', error);
+                        }
+                    }
+                } else {
+                    // Fallback to download (switches to the new file)
+                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(dataBlob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `${name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                    
+                    setFileName(name);
+                    setCurrentFilePath(link.download);
+                    setIsNewFile(false);
+                    setLastSaved(new Date());
+                    setHasUnsavedChanges(false);
+                    
+                    alert(`Newsletter "${name}" downloaded successfully!`);
+                }
+            };
+
+            const newFile = () => {
+                if (hasUnsavedChanges && !confirm('You have unsaved changes. Are you sure you want to create a new newsletter?')) {
+                    return;
+                }
+
+                // Get current date for new newsletter
+                const now = new Date();
+                const currentMonth = now.toLocaleString('default', { month: 'long' });
+                const currentYear = now.getFullYear();
+
+                setData({
+                    headerTitle: `<p>${currentMonth} ${currentYear} Newsletter</p>`,
+                    title: '<p>The Wharton Club of the United Kingdom Newsletter</p>',
+                    month: `<p>${currentMonth}</p>`,
+                    year: `<p>${currentYear}</p>`,
+                    salutation: '<p>{{recipient.first_name_or_friend}} --</p>',
+                    greeting: '<p>We hope this newsletter finds you well. We\'re excited to share updates about our recent activities and upcoming events.</p>',
+                    sections: [], // Start with empty sections for user to add
+                    // Toggle controls for template sections
+                    showHeader: true,
+                    showGreeting: true,
+                    showCommunityLinks: true,
+                    showSignature: true,
+                    communityLinks: [
+                        {
+                            title: 'Become a Club Member',
+                            description: 'Join The Wharton Club of the United Kingdom to access exclusive events, networking opportunities, and career resources.',
+                            url: 'https://www.whartonclubuk.net/become_a_member'
+                        },
+                        {
+                            title: 'Join our Community',
+                            description: 'Stay connected with fellow alumni through our main WhatsApp group.',
+                            url: 'https://forms.gle/CDvFgFGrgLFZB3HL9'
+                        },
+                        {
+                            title: 'Join The Wharton Alumni AI Studio',
+                            description: 'Connect with AI and deep tech enthusiasts in our growing global community.',
+                            url: 'https://forms.gle/CoDwPjqsn8Hn1X8v7'
+                        }
+                    ],
+                    signature: '<p>Thank you again to all our event organizers and participants who made this year exceptional.</p><p>We look forward to building even more connections in the coming year!</p><p><strong>Warm regards,</strong></p><p><strong>George Gvishiani WG\'08</strong></p><p><em>President, The Wharton Club of the United Kingdom</em></p>'
+                });
+                
+                // Reset all file-related state
+                setFileName('Untitled Newsletter');
+                setCurrentFilePath('');
+                setFileHandle(null);
+                setIsNewFile(true);
+                setHasUnsavedChanges(false);
+                setLastSaved(null);
+                
+                // Show success message
+                alert(`New newsletter project created for ${currentMonth} ${currentYear}!`);
+            };
+
+            // Make functions globally available
+            useEffect(() => {
+                window.copyHTML = () => {
+                    const preview = document.querySelector('table');
+                    if (preview) {
+                        // Create Gmail-optimized HTML
+                        const gmailOptimizedHTML = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Newsletter</title>
+    <!--[if !mso]><!-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--<![endif]-->
+    <style type="text/css">
+        /* Reset styles */
+        body, table, td, p, a, li, blockquote {
+            -webkit-text-size-adjust: 100% !important;
+            -ms-text-size-adjust: 100% !important;
+            margin: 0;
+            padding: 0;
+        }
+        
+        table {
+            border-spacing: 0 !important;
+            border-collapse: collapse !important;
+            mso-table-lspace: 0pt !important;
+            mso-table-rspace: 0pt !important;
+        }
+        
+        /* Prevent Webkit and Windows Mobile from changing font sizes */
+        body, table, td, a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        
+        /* Remove default link styles in iOS */
+        .apple-links a {
+            color: inherit !important;
+            text-decoration: none !important;
+        }
+        
+        /* Force Outlook to use real padding */
+        table td {
+            border-collapse: collapse;
+        }
+        
+        /* Container max-width for desktop */
+        .container {
+            width: 100% !important;
+            max-width: 700px !important;
+        }
+        
+        /* Mobile-first responsive design */
+        @media screen and (max-width: 700px) {
+            .container {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            
+            .mobile-padding {
+                padding: 16px !important;
+            }
+            
+            .mobile-button {
+                width: 100% !important;
+                max-width: 280px !important;
+                margin: 12px auto !important;
+                display: block !important;
+            }
+            
+            .mobile-text {
+                font-size: 16px !important;
+                line-height: 1.5 !important;
+            }
+            
+            .mobile-heading {
+                font-size: 20px !important;
+                line-height: 1.3 !important;
+            }
+        }
+        
+        /* Small mobile devices */
+        @media screen and (max-width: 480px) {
+            .mobile-padding {
+                padding: 12px !important;
+            }
+            
+            .mobile-button {
+                padding: 14px 20px !important;
+                font-size: 16px !important;
+            }
+        }
+    </style>
+    <!--[if mso]>
+    <style type="text/css">
+        .container {
+            width: 700px !important;
+        }
+    </style>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+    
+    <!-- Wrapper table for background -->
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f4f4f4;">
+        <tr>
+            <td align="center" valign="top" style="padding: 20px 10px;">
+                
+                <!--[if mso]>
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="700" style="width: 700px;">
+                <tr>
+                <td>
+                <![endif]-->
+                
+                <!-- Main content container -->
+                <center>
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="700" align="center" class="container" style="width: 700px; max-width: 700px; background-color: #ffffff; margin: 0 auto !important; float: none;">
+                    <tr>
+                        <td align="left" style="text-align: left;">
+                            ${generateGmailOptimizedContent()}
+                        </td>
+                    </tr>
+                </table>
+                </center>
+                
+                <!--[if mso]>
+                </td>
+                </tr>
+                </table>
+                <![endif]-->
+                
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`;
+                        
+                        navigator.clipboard.writeText(gmailOptimizedHTML).then(() => {
+                            alert('Gmail-optimized Newsletter HTML copied to clipboard!\n\nThis version includes:\n✅ Gmail anti-blend fixes\n✅ Proper DOCTYPE for email clients\n✅ Inline CSS for maximum compatibility\n✅ Mobile responsive design');
+                        });
+                    }
+                };
+
+                const generateGmailOptimizedContent = () => {
+                    // Generate Gmail-safe HTML structure with all inline styles
+                    return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; background-color: #ffffff; font-family: Arial, Helvetica, sans-serif;">
+    ${data.showHeader ? `<!-- Header -->
+    <tr>
+        <td style="background-color: #990000; color: #ffffff; padding: 12px 16px; text-align: center; font-family: Arial, Helvetica, sans-serif;">
+            <div style="font-size: 20px; font-weight: bold; line-height: 1.3; margin: 0; color: #ffffff;">
+                ${data.headerTitle || ''}
+            </div>
+            <div style="font-size: 14px; margin: 6px 0 0 0; line-height: 1.3; color: #ffffff; opacity: 0.95;">
+                ${data.title || ''}
+            </div>
+        </td>
+    </tr>` : ''}
+    
+    ${data.showGreeting ? `<!-- Greeting -->
+    <tr>
+        <td style="padding: 24px 20px; font-family: Arial, Helvetica, sans-serif;" class="mobile-padding">
+            <div style="font-size: 18px; color: #333333; margin-bottom: 12px; font-weight: bold; line-height: 1.3;" class="mobile-heading">
+                ${data.salutation || ''}
+            </div>
+            <div style="color: #666666; line-height: 1.6; font-size: 15px; margin: 0 0 16px 0;" class="mobile-text">
+                ${data.greeting || ''}
+            </div>
+        </td>
+    </tr>` : ''}
+    
+    ${data.sections.map(section => generateSectionHTML(section)).join('')}
+    
+    ${data.showCommunityLinks && data.communityLinks.length > 0 ? generateCommunityLinksHTML() : ''}
+    
+    ${data.showSignature && data.signature ? generateSignatureHTML() : ''}
+    
+    <!-- Footer -->
+    <tr>
+        <td style="padding: 20px 16px; border-top: 1px solid #eaeaea; text-align: center; background-color: #f8f8f8; font-family: Arial, Helvetica, sans-serif;">
+            <p style="color: #666666; line-height: 1.6; font-size: 14px; margin: 0 0 16px 0;">
+                <strong>Stay connected with us:</strong><br/>
+                <a href="https://www.whartonclubuk.net/" style="color: #011F5B; text-decoration: none;">Website</a> | 
+                <a href="https://www.linkedin.com/company/wharton-club-uk/" style="color: #011F5B; text-decoration: none;">LinkedIn</a>
+            </p>
+            <p style="color: #666666; line-height: 1.6; font-size: 14px; margin: 0 0 16px 0;">
+                <strong>Contact us:</strong> <a href="mailto:webmaster@whartonclubuk.net" style="color: #011F5B; text-decoration: none;">webmaster@whartonclubuk.net</a>
+            </p>
+            <p style="color: #666666; line-height: 1.6; font-size: 14px; margin: 0;">
+                The Wharton Club of the United Kingdom<br/>
+                Russell House, Oxford Road<br/>
+                Bournemouth, Dorset, BH8 8EX
+            </p>
+        </td>
+    </tr>
+</table>`;
+                };
+
+                const generateSectionHTML = (section) => {
+                    const titleAlignment = section.titleAlignment || 'left';
+                    return `<tr>
+        <td style="padding: 24px 20px; font-family: Arial, Helvetica, sans-serif;" class="mobile-padding">
+            <h2 style="font-size: 20px; color: #333333; margin: 0 0 16px 0; font-weight: bold; line-height: 1.3; text-align: ${titleAlignment};" class="mobile-heading">${section.title}</h2>
+            ${generateSectionContentHTML(section)}
+        </td>
+    </tr>`;
+                };
+
+                const generateSectionContentHTML = (section) => {
+                    // Handle the new generic section structure
+                    return `<div style="color: #666666; line-height: 1.6; font-size: 15px; margin: 0; font-family: Arial, sans-serif;" class="mobile-text">
+                        ${section.subtitle ? `<h3 style="font-size: 18px; color: #333333; margin: 0 0 14px 0; font-weight: bold; line-height: 1.3;" class="mobile-heading">${section.subtitle}</h3>` : ''}
+                        ${section.imageUrl ? `<div style="margin-bottom: 20px; text-align: center;"><img src="${section.imageUrl}" alt="${section.imageAlt || ''}" style="max-width: 100%; height: auto; border-radius: 6px; border: 1px solid #ddd;"></div>` : ''}
+                        ${section.description ? `<div style="margin-bottom: ${section.url ? '20px' : '0'};">${section.description}</div>` : ''}
+                        ${section.url ? `<div style="margin-top: 20px; text-align: left;">
+                            <a href="${section.url}" style="display: inline-block; background-color: #990000; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold; font-family: Arial, sans-serif; border: none; text-align: center; min-width: 120px;" class="mobile-button">
+                                ${section.buttonText || 'Learn More'}
+                            </a>
+                        </div>` : ''}
+                    </div>`;
+                };
+
+                const generateCommunityLinksHTML = () => {
+                    return `<tr>
+        <td style="padding: 20px 16px; font-family: Arial, Helvetica, sans-serif;">
+            <h2 style="font-size: 18px; color: #333333; margin: 0 0 12px 0; font-weight: bold; line-height: 1.3;">Join Our Communities</h2>
+            ${data.communityLinks.map(link => `<div style="margin-bottom: 16px; padding: 12px; background-color: #f9f9f9; border-radius: 4px; border: 2px solid #990000;">
+                <div style="font-size: 16px; color: #333333; margin: 0 0 8px 0; font-weight: 600; line-height: 1.2;">${link.title}</div>
+                <div style="color: #666666; line-height: 1.2; font-size: 14px; margin: 0 0 8px 0;">${link.description}</div>
+                <a href="${link.url}" style="display: inline-block; background-color: #990000; color: #ffffff; padding: 8px 12px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold;">${link.title.toLowerCase().includes('whatsapp') ? 'Join Group' : link.title.toLowerCase().includes('ai studio') ? 'Join AI Studio' : 'Join Now'}</a>
+            </div>`).join('')}
+        </td>
+    </tr>`;
+                };
+
+                const generateSignatureHTML = () => {
+                    return `<tr>
+        <td style="padding: 20px 16px; border-top: 1px solid #e0e0e0; font-family: Arial, Helvetica, sans-serif;">
+            <div style="color: #666666; line-height: 1.6; font-size: 14px;">
+                ${data.signature || ''}
+            </div>
+        </td>
+    </tr>`;
+                };
+
+                window.saveFile = saveFile;
+                window.saveAsFile = saveAsFile;
+                window.newFile = newFile;
+
+                window.loadJSON = async () => {
+                    if (hasUnsavedChanges && !confirm('You have unsaved changes. Are you sure you want to open a new file?')) {
+                        return;
+                    }
+                    
+                    if (supportsFileSystemAccess()) {
+                        try {
+                            // Use File System Access API to maintain file handle
+                            const [newFileHandle] = await window.showOpenFilePicker({
+                                types: [{
+                                    description: 'JSON files',
+                                    accept: { 'application/json': ['.json'] }
+                                }]
+                            });
+
+                            const file = await newFileHandle.getFile();
+                            const contents = await file.text();
+                            
+                            try {
+                                const template = JSON.parse(contents);
+                                if (template.data) {
+                                    setData(template.data);
+                                    setFileName(template.name || file.name.replace('.json', ''));
+                                    setCurrentFilePath(file.name);
+                                    setFileHandle(newFileHandle); // Keep the handle for saving
+                                    setIsNewFile(false);
+                                    setHasUnsavedChanges(false);
+                                    setLastSaved(null);
+                                    alert(`Newsletter "${template.name || file.name}" loaded successfully!`);
+                                }
+                            } catch {
+                                alert('Invalid newsletter file!');
+                            }
+                        } catch {
+                            console.log('User cancelled file selection');
+                        }
+                    } else {
+                        // Fallback to file input for older browsers
+                        document.getElementById('fileInput').click();
+                    }
+                };
+
+                window.toggleEditor = () => {
+                    setShowEditor(prev => {
+                        const newState = !prev;
+                        // Use React state to control visibility instead of direct DOM manipulation
+                        setTimeout(() => {
+                            const editorPanel = document.getElementById('editorPanel');
+                            if (editorPanel) {
+                                editorPanel.style.display = newState ? 'block' : 'none';
+                            }
+                        }, 0);
+                        return newState;
+                    });
+                };
+
+                // Update file name display and status
+                document.getElementById('fileName').textContent = fileName;
+                document.getElementById('unsavedIndicator').textContent = hasUnsavedChanges ? ' *' : '';
+                
+                const saveStatus = document.getElementById('saveStatus');
+                const saveTime = document.getElementById('saveTime');
+                if (lastSaved) {
+                    saveTime.textContent = `Last saved: ${lastSaved.toLocaleTimeString()}`;
+                    saveStatus.style.display = 'block';
+                } else {
+                    saveStatus.style.display = 'none';
+                }
+
+                // Show file handle status
+                const fileHandleStatus = document.getElementById('fileHandleStatus');
+                const noFileHandleWarning = document.getElementById('noFileHandleWarning');
+                
+                if (supportsFileSystemAccess()) {
+                    if (!isNewFile && fileHandle) {
+                        fileHandleStatus.style.display = 'block';
+                        noFileHandleWarning.style.display = 'none';
+                    } else if (!isNewFile && !fileHandle) {
+                        fileHandleStatus.style.display = 'none';
+                        noFileHandleWarning.style.display = 'none'; // Don't show warning for loaded files
+                    } else {
+                        fileHandleStatus.style.display = 'none';
+                        noFileHandleWarning.style.display = 'none';
+                    }
+                } else {
+                    fileHandleStatus.style.display = 'none';
+                    if (!isNewFile) {
+                        noFileHandleWarning.style.display = 'block';
+                    } else {
+                        noFileHandleWarning.style.display = 'none';
+                    }
+                }
+            }, [data, fileName, hasUnsavedChanges, lastSaved, isNewFile, fileHandle]);
+
+            // File input handler
+            useEffect(() => {
+                const fileInput = document.getElementById('fileInput');
+                const handleFileLoad = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            try {
+                                const template = JSON.parse(e.target.result);
+                                if (template.data) {
+                                    setData(template.data);
+                                    setFileName(template.name || file.name.replace('.json', ''));
+                                    setCurrentFilePath(file.name);
+                                    setIsNewFile(false);
+                                    setHasUnsavedChanges(false);
+                                    setLastSaved(null);
+                                    setFileHandle(null); // Reset file handle since we loaded from file input
+                                    alert('Newsletter loaded successfully!');
+                                }
+                            } catch (err) {
+                                alert('Error loading file: Invalid JSON');
+                            }
+                        };
+                        reader.readAsText(file);
+                    }
+                };
+                fileInput.addEventListener('change', handleFileLoad);
+                return () => fileInput.removeEventListener('change', handleFileLoad);
+            }, []);
+
+            // Render section item based on type
+            const renderSectionItem = (section, item, itemIndex) => {
+                return (
+                    <div key={itemIndex} className="item-container">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                            <h4 style={{ margin: 0, color: '#333' }}>Item #{itemIndex + 1}</h4>
+                            <button
+                                className="button-style"
+                                style={{ backgroundColor: '#dc3545' }}
+                                onClick={() => removeItemFromSection(section.id, itemIndex)}
+                            >
+                                🗑 Remove
+                            </button>
+                        </div>
+
+                        {section.type === 'partner-events' && (
+                            <>
+                                <label className="label-style">Partner Organization:</label>
+                                <input
+                                    className="input-style"
+                                    value={item.partner || ''}
+                                    onChange={(e) => updateItemInSection(section.id, itemIndex, 'partner', e.target.value)}
+                                    placeholder="e.g., Harvard Business School"
+                                />
+                            </>
+                        )}
+
+                        {section.type === 'alumni-spotlight' && (
+                            <>
+                                <label className="label-style">Alumni Name:</label>
+                                <input
+                                    className="input-style"
+                                    value={item.name || ''}
+                                    onChange={(e) => updateItemInSection(section.id, itemIndex, 'name', e.target.value)}
+                                    placeholder="Full name"
+                                />
+                                <label className="label-style">Class:</label>
+                                <input
+                                    className="input-style"
+                                    value={item.class || ''}
+                                    onChange={(e) => updateItemInSection(section.id, itemIndex, 'class', e.target.value)}
+                                    placeholder="e.g., WG'15"
+                                />
+                            </>
+                        )}
+
+                        <label className="label-style">Title:</label>
+                        <RichTextEditor
+                            content={item.title || ''}
+                            onChange={(content) => updateItemInSection(section.id, itemIndex, 'title', content)}
+                            placeholder="Item title..."
+                        />
+
+                        {(section.type === 'events' || section.type === 'partner-events') && (
+                            <div className="flex-row">
+                                <div className="flex-1">
+                                    <label className="label-style">Date:</label>
+                                    <input
+                                        className="input-style"
+                                        value={item.date || ''}
+                                        onChange={(e) => updateItemInSection(section.id, itemIndex, 'date', e.target.value)}
+                                        placeholder="April 15, 2024"
+                                    />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="label-style">Time:</label>
+                                    <input
+                                        className="input-style"
+                                        value={item.time || ''}
+                                        onChange={(e) => updateItemInSection(section.id, itemIndex, 'time', e.target.value)}
+                                        placeholder="6:30 PM"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {(section.type === 'events' || section.type === 'partner-events') && (
+                            <>
+                                <label className="label-style">Location:</label>
+                                <input
+                                    className="input-style"
+                                    value={item.location || ''}
+                                    onChange={(e) => updateItemInSection(section.id, itemIndex, 'location', e.target.value)}
+                                    placeholder="Venue name and address"
+                                />
+                            </>
+                        )}
+
+                        <label className="label-style">Description:</label>
+                        <RichTextEditor
+                            content={item.description || ''}
+                            onChange={(content) => updateItemInSection(section.id, itemIndex, 'description', content)}
+                            placeholder="Description..."
+                        />
+
+                        {(section.type === 'events' || section.type === 'partner-events') && (
+                            <>
+                                <label className="label-style">Registration URL:</label>
+                                <input
+                                    className="input-style"
+                                    value={item.registrationUrl || ''}
+                                    onChange={(e) => updateItemInSection(section.id, itemIndex, 'registrationUrl', e.target.value)}
+                                    placeholder="https://..."
+                                />
+                            </>
+                        )}
+
+                        {section.type === 'community-links' && (
+                            <>
+                                <label className="label-style">URL:</label>
+                                <input
+                                    className="input-style"
+                                    value={item.url || ''}
+                                    onChange={(e) => updateItemInSection(section.id, itemIndex, 'url', e.target.value)}
+                                    placeholder="https://..."
+                                />
+                            </>
+                        )}
+
+                        {section.type === 'alumni-spotlight' && (
+                            <>
+                                <label className="label-style">Read More URL:</label>
+                                <input
+                                    className="input-style"
+                                    value={item.readMoreUrl || ''}
+                                    onChange={(e) => updateItemInSection(section.id, itemIndex, 'readMoreUrl', e.target.value)}
+                                    placeholder="https://..."
+                                />
+                            </>
+                        )}
+                    </div>
+                );
+            };
+
+            return (
+                <>
+                    {showEditor && (
+                        <div id="editor">
+                            <h2 style={{ color: '#011F5B', marginBottom: '24px' }}>
+                                📝 Newsletter Editor
+                            </h2>
+
+                            {/* Section Toggles */}
+                            <div className="section">
+                                <div className="collapsible-header" onClick={() => toggleSection('toggles')}>
+                                    <h3 style={{ color: '#990000', margin: 0 }}>🎛️ Template Section Controls</h3>
+                                    <span className={`collapsible-icon ${collapsedSections.toggles ? 'collapsed' : ''}`}>▼</span>
+                                </div>
+                                <div className={`collapsible-content ${collapsedSections.toggles ? 'collapsed' : ''}`}>
+                                    <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+                                        Show or hide predefined template sections. All sections can be toggled except the footer address.
+                                    </p>
+                                
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', backgroundColor: '#f8f9fa', borderRadius: '4px', cursor: 'pointer' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={data.showHeader}
+                                            onChange={(e) => updateField('showHeader', e.target.checked)}
+                                            style={{ transform: 'scale(1.2)' }}
+                                        />
+                                        <span>📅 Header & Title</span>
+                                    </label>
+                                    
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', backgroundColor: '#f8f9fa', borderRadius: '4px', cursor: 'pointer' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={data.showGreeting}
+                                            onChange={(e) => updateField('showGreeting', e.target.checked)}
+                                            style={{ transform: 'scale(1.2)' }}
+                                        />
+                                        <span>👋 Greeting & Salutation</span>
+                                    </label>
+                                    
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', backgroundColor: '#f8f9fa', borderRadius: '4px', cursor: 'pointer' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={data.showCommunityLinks}
+                                            onChange={(e) => updateField('showCommunityLinks', e.target.checked)}
+                                            style={{ transform: 'scale(1.2)' }}
+                                        />
+                                        <span>💬 Community Links</span>
+                                    </label>
+                                    
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', backgroundColor: '#f8f9fa', borderRadius: '4px', cursor: 'pointer' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={data.showSignature}
+                                            onChange={(e) => updateField('showSignature', e.target.checked)}
+                                            style={{ transform: 'scale(1.2)' }}
+                                        />
+                                        <span>✍️ Signature</span>
+                                    </label>
+                                </div>
+                                </div>
+                            </div>
+
+                            {/* Basic Info */}
+                            <div className="section">
+                                <div className="collapsible-header" onClick={() => toggleSection('basicInfo')}>
+                                    <h3 style={{ color: '#990000', margin: 0 }}>📅 Basic Information</h3>
+                                    <span className={`collapsible-icon ${collapsedSections.basicInfo ? 'collapsed' : ''}`}>▼</span>
+                                </div>
+                                <div className={`collapsible-content ${collapsedSections.basicInfo ? 'collapsed' : ''}`}>
+                                
+                                <label className="label-style">Header Title (Rich Text):</label>
+                                <RichTextEditor
+                                    content={data.headerTitle}
+                                    onChange={(content) => updateField('headerTitle', content)}
+                                    placeholder="e.g., March 2024 Newsletter"
+                                />
+
+                                <label className="label-style">Newsletter Title (Rich Text):</label>
+                                <RichTextEditor
+                                    content={data.title}
+                                    onChange={(content) => updateField('title', content)}
+                                    placeholder="e.g., The Wharton Club of the United Kingdom Newsletter"
+                                />
+
+                                <div className="flex-row">
+                                    <div className="flex-1">
+                                        <label className="label-style">Month (Rich Text):</label>
+                                        <RichTextEditor
+                                            content={data.month}
+                                            onChange={(content) => updateField('month', content)}
+                                            placeholder="e.g., March"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="label-style">Year (Rich Text):</label>
+                                        <RichTextEditor
+                                            content={data.year}
+                                            onChange={(content) => updateField('year', content)}
+                                            placeholder="e.g., 2024"
+                                        />
+                                    </div>
+                                </div>
+
+                                <label className="label-style">Salutation (Rich Text):</label>
+                                <RichTextEditor
+                                    content={data.salutation}
+                                    onChange={(content) => updateField('salutation', content)}
+                                    placeholder="e.g., Dear Friends, or personalized salutation..."
+                                />
+
+                                <label className="label-style">Opening Greeting (Rich Text):</label>
+                                <RichTextEditor
+                                    content={data.greeting}
+                                    onChange={(content) => updateField('greeting', content)}
+                                    placeholder="Welcome message with rich formatting..."
+                                />
+                                </div>
+                            </div>
+
+                            {/* Dynamic Sections */}
+                            {data.sections.map((section, sectionIndex) => (
+                                <div 
+                                    key={section.id} 
+                                    className="section draggable-section"
+                                    draggable="false"
+                                    onDragOver={handleDragOver}
+                                    onDragEnter={handleDragEnter}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={(e) => handleDrop(e, section.id)}
+                                    onDragEnd={handleDragEnd}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <div 
+                                                className="drag-handle" 
+                                                title="Drag to reorder section"
+                                                draggable="true"
+                                                onDragStart={(e) => {
+                                                    handleDragStart(e, section.id);
+                                                    e.stopPropagation();
+                                                }}
+                                                onMouseDown={(e) => e.stopPropagation()}
+                                            >
+                                                ⋮⋮
+                                            </div>
+                                            <span style={{ fontWeight: 'bold', color: '#6c757d' }}>
+                                                Section #{sectionIndex + 1}
+                                            </span>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '4px' }}>
+                                            <button
+                                                className="button-style"
+                                                style={{ backgroundColor: '#6c757d', fontSize: '12px', padding: '6px 8px', margin: '0 2px' }}
+                                                onClick={() => moveSectionUp(section.id)}
+                                                disabled={sectionIndex === 0}
+                                                title="Move up"
+                                            >
+                                                ↑
+                                            </button>
+                                            <button
+                                                className="button-style"
+                                                style={{ backgroundColor: '#6c757d', fontSize: '12px', padding: '6px 8px', margin: '0 2px' }}
+                                                onClick={() => moveSectionDown(section.id)}
+                                                disabled={sectionIndex === data.sections.length - 1}
+                                                title="Move down"
+                                            >
+                                                ↓
+                                            </button>
+                                            <button
+                                                className="button-style"
+                                                style={{ backgroundColor: '#dc3545', margin: '0 0 0 8px' }}
+                                                onClick={() => removeSection(section.id)}
+                                            >
+                                                🗑 Remove Section
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Title Field (Optional) */}
+                                    <label className="label-style">Title (optional):</label>
+                                    <RichTextEditor
+                                        content={section.title || ''}
+                                        onChange={(content) => updateSection(section.id, { title: content })}
+                                        placeholder="Enter section title (leave blank to omit)"
+                                    />
+
+                                    {/* Subtitle Field (Optional) */}
+                                    <label className="label-style">Sub-title (optional):</label>
+                                    <RichTextEditor
+                                        content={section.subtitle || ''}
+                                        onChange={(content) => updateSection(section.id, { subtitle: content })}
+                                        placeholder="Enter section subtitle (leave blank to omit)"
+                                    />
+
+                                    {/* Description Field (Optional) */}
+                                    <label className="label-style">Description (optional):</label>
+                                    <RichTextEditor
+                                        content={section.description || ''}
+                                        onChange={(content) => updateSection(section.id, { description: content })}
+                                        placeholder="Enter section description (leave blank to omit)"
+                                    />
+
+                                    {/* Image Upload (Optional) */}
+                                    <label className="label-style">Image (optional):</label>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                handleImageUpload(section.id, file);
+                                            }
+                                        }}
+                                        className="input-style"
+                                    />
+
+                                    {section.imageUrl && (
+                                        <div style={{ marginTop: '12px' }}>
+                                            <img
+                                                src={section.imageUrl}
+                                                alt={section.imageAlt || 'Section image'}
+                                                style={{
+                                                    maxWidth: '200px',
+                                                    maxHeight: '200px',
+                                                    display: 'block',
+                                                    marginBottom: '8px',
+                                                    border: '1px solid #ccc',
+                                                    borderRadius: '4px'
+                                                }}
+                                            />
+                                            <input
+                                                className="input-style"
+                                                value={section.imageAlt || ''}
+                                                onChange={(e) => updateSection(section.id, { imageAlt: e.target.value })}
+                                                placeholder="Alt text for accessibility (optional)"
+                                                style={{ fontSize: '14px', marginTop: '8px' }}
+                                            />
+                                            <button
+                                                className="button-style"
+                                                style={{ backgroundColor: '#dc3545', fontSize: '12px', padding: '4px 8px', marginTop: '8px' }}
+                                                onClick={() => updateSection(section.id, { imageUrl: '', imageAlt: '' })}
+                                            >
+                                                Remove Image
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* URL Field (Optional) */}
+                                    <label className="label-style">URL (optional):</label>
+                                    <input
+                                        className="input-style"
+                                        value={section.url || ''}
+                                        onChange={(e) => updateSection(section.id, { url: e.target.value })}
+                                        placeholder="https://example.com (leave blank to omit link)"
+                                    />
+
+                                    {/* Button Text Field (Optional - always visible) */}
+                                    <label className="label-style">Button Text (optional):</label>
+                                    <input
+                                        className="input-style"
+                                        value={section.buttonText || ''}
+                                        onChange={(e) => updateSection(section.id, { buttonText: e.target.value })}
+                                        placeholder="Learn More (leave blank for default)"
+                                    />
+
+
+                                </div>
+                            ))}
+
+                            <div style={{ marginBottom: '20px' }}>
+                                <button 
+                                    className="button-style"
+                                    style={{ 
+                                        backgroundColor: '#007bff', 
+                                        fontSize: '16px', 
+                                        padding: '12px 24px'
+                                    }} 
+                                    onClick={() => addSection('generic')}
+                                >
+                                    ➕ Add Section
+                                </button>
+                            </div>
+
+                            {/* Fixed Community Links */}
+                            <div className="section">
+                                <div className="collapsible-header" onClick={() => toggleSection('communityLinks')}>
+                                    <h3 style={{ color: '#990000', margin: 0 }}>💬 Join our Communities</h3>
+                                    <span className={`collapsible-icon ${collapsedSections.communityLinks ? 'collapsed' : ''}`}>▼</span>
+                                </div>
+                                <div className={`collapsible-content ${collapsedSections.communityLinks ? 'collapsed' : ''}`}>
+                                
+                                {data.communityLinks.map((link, index) => (
+                                    <div key={index} className="item-container">
+                                        <h4 style={{ margin: '0 0 12px 0', color: '#333' }}>{link.title}</h4>
+                                        
+                                        <label className="label-style">Description:</label>
+                                        <RichTextEditor
+                                            content={link.description || ''}
+                                            onChange={(content) => updateCommunityLink(index, 'description', content)}
+                                            placeholder="Brief description..."
+                                        />
+                                        
+                                        <label className="label-style">URL:</label>
+                                        <input
+                                            className="input-style"
+                                            value={link.url}
+                                            onChange={(e) => updateCommunityLink(index, 'url', e.target.value)}
+                                            placeholder="https://..."
+                                        />
+                                    </div>
+                                ))}
+                                </div>
+                            </div>
+
+                            {/* Signature Section */}
+                            <div className="section">
+                                <div className="collapsible-header" onClick={() => toggleSection('signature')}>
+                                    <h3 style={{ color: '#990000', margin: 0 }}>✍️ Signature</h3>
+                                    <span className={`collapsible-icon ${collapsedSections.signature ? 'collapsed' : ''}`}>▼</span>
+                                </div>
+                                <div className={`collapsible-content ${collapsedSections.signature ? 'collapsed' : ''}`}>
+                                
+                                <label className="label-style">Newsletter Signature (Rich Text):</label>
+                                <RichTextEditor
+                                    content={data.signature}
+                                    onChange={(content) => updateField('signature', content)}
+                                    placeholder="Add your closing message and signature with rich formatting..."
+                                />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div id="preview">
+                        <NewsletterPreview data={data} />
+                    </div>
+                </>
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(<NewsletterApp />, document.getElementById('root'));
+    </script>
+
+    <div id="root"></div>
+
+    <script>
+        console.log('✅ Complete Original Newsletter Builder loaded successfully!');
+    </script>
+</body>
+</html>

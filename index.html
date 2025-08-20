@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wharton Club UK Newsletter Builder</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #990000 0%, #011F5B 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 32px;
+            line-height: 1.4;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.9);
+            color: #990000;
+            padding: 16px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            margin: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+        
+        .features {
+            margin-top: 40px;
+            text-align: left;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+        
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-right: 12px;
+            width: 32px;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 14px 24px;
+                font-size: 1rem;
+                display: block;
+                margin: 12px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">📧</div>
+        <h1>Newsletter Builder</h1>
+        <p class="subtitle">Professional newsletter creator for The Wharton Club of the United Kingdom</p>
+        
+        <a href="complete-original-newsletter.html" class="btn">
+            🚀 Launch Newsletter Builder
+        </a>
+        
+        <a href="https://github.com/cool-machine/wharton_uk_newsletter" class="btn btn-secondary">
+            📁 View on GitHub
+        </a>
+        
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">✨</span>
+                <span>Rich text editing with fonts & colors</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🎨</span>
+                <span>Professional Wharton branding</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">📱</span>
+                <span>Mobile-responsive design</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">📧</span>
+                <span>Gmail-optimized HTML export</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">💾</span>
+                <span>Save & load newsletter templates</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🤖</span>
+                <span>Assistant AI integration for alt-text</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Built with ❤️ for the Wharton community</p>
+            <p>No installation required • Works offline • Self-contained</p>
+        </div>
+    </div>
+</body>
+</html>
