@@ -302,3 +302,4 @@ Free to use and modify for educational and club purposes.
 **Built with ❤️ for the Wharton community**
 
 *Ready to create professional newsletters that engage your alumni network!*# Trigger workflow
+# Trigger fresh deployment after rename
