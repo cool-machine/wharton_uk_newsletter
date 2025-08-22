@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Test outputs
+test-results/
+playwright-report/
+
+# Generated files
+*.min.js
+*.min.css
+
+# Preserve original newsletter HTML formatting
+complete-original-newsletter.html
