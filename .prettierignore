@@ -15,3 +15,6 @@ playwright-report/
 
 # Preserve original newsletter HTML formatting
 complete-original-newsletter.html
+
+# Preserve HTML validation fixes
+index.html
