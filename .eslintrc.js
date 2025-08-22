@@ -7,9 +7,6 @@ module.exports = {
   extends: [
     'eslint:recommended'
   ],
-  plugins: [
-    'html'
-  ],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'script'
@@ -24,15 +21,7 @@ module.exports = {
     'no-debugger': 'error',
     'no-alert': 'warn'
   },
-  settings: {
-    'html/html-extensions': ['.html'],
-    'html/xml-extensions': ['.xml'],
-    'html/indent': '0'
-  },
-  overrides: [
-    {
-      files: ['*.html'],
-      processor: 'html/extract-script'
-    }
+  ignorePatterns: [
+    '*.html'
   ]
 };

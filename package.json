@@ -7,15 +7,14 @@
     "start": "npx http-server -p 8080 -o",
     "dev": "npx http-server -p 8080 -o",
     "build": "npm run lint && npm run format:check",
-    "lint": "npx eslint *.html --ext .js,.html",
-    "lint:fix": "npx eslint *.html --ext .js,.html --fix",
+    "lint": "npx eslint *.js",
+    "lint:fix": "npx eslint *.js --fix",
     "format": "npx prettier --write *.html *.md *.json",
     "format:check": "npx prettier --check *.html *.md *.json",
     "test": "npx playwright test",
     "test:ui": "npx playwright test --ui",
     "validate": "npx html-validate *.html",
-    "deploy": "gh-pages -d .",
-    "prepare": "npm run build"
+    "deploy": "gh-pages -d ."
   },
   "repository": {
     "type": "git",
@@ -40,7 +39,6 @@
   "devDependencies": {
     "@playwright/test": "^1.40.0",
     "eslint": "^8.57.0",
-    "eslint-plugin-html": "^7.1.0",
     "html-validate": "^8.7.4",
     "http-server": "^14.1.1",
     "prettier": "^3.1.1",
