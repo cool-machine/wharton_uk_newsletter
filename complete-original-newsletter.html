@@ -2112,142 +2112,19 @@ Please provide just the alt text without quotes or extra explanation.`;
                 window.copyHTML = () => {
                     const preview = document.querySelector('table');
                     if (preview) {
-                        // Create Gmail-optimized HTML
-                        const gmailOptimizedHTML = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Newsletter</title>
-    <!--[if !mso]><!-->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <!--<![endif]-->
-    <style type="text/css">
-        /* Reset styles */
-        body, table, td, p, a, li, blockquote {
-            -webkit-text-size-adjust: 100% !important;
-            -ms-text-size-adjust: 100% !important;
-            margin: 0;
-            padding: 0;
-        }
-        
-        table {
-            border-spacing: 0 !important;
-            border-collapse: collapse !important;
-            mso-table-lspace: 0pt !important;
-            mso-table-rspace: 0pt !important;
-        }
-        
-        /* Prevent Webkit and Windows Mobile from changing font sizes */
-        body, table, td, a {
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
-        }
-        
-        /* Remove default link styles in iOS */
-        .apple-links a {
-            color: inherit !important;
-            text-decoration: none !important;
-        }
-        
-        /* Force Outlook to use real padding */
-        table td {
-            border-collapse: collapse;
-        }
-        
-        /* Container max-width for desktop */
-        .container {
-            width: 100% !important;
-            max-width: 700px !important;
-        }
-        
-        /* Mobile-first responsive design */
-        @media screen and (max-width: 700px) {
-            .container {
-                width: 100% !important;
-                max-width: 100% !important;
-            }
-            
-            .mobile-padding {
-                padding: 16px !important;
-            }
-            
-            .mobile-button {
-                width: 100% !important;
-                max-width: 280px !important;
-                margin: 12px auto !important;
-                display: block !important;
-            }
-            
-            .mobile-text {
-                font-size: 16px !important;
-                line-height: 1.5 !important;
-            }
-            
-            .mobile-heading {
-                font-size: 20px !important;
-                line-height: 1.3 !important;
-            }
-        }
-        
-        /* Small mobile devices */
-        @media screen and (max-width: 480px) {
-            .mobile-padding {
-                padding: 12px !important;
-            }
-            
-            .mobile-button {
-                padding: 14px 20px !important;
-                font-size: 16px !important;
-            }
-        }
-    </style>
-    <!--[if mso]>
-    <style type="text/css">
-        .container {
-            width: 700px !important;
-        }
-    </style>
-    <![endif]-->
-</head>
-<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
-    
-    <!-- Wrapper table for background -->
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f4f4f4;">
-        <tr>
-            <td align="center" valign="top" style="padding: 20px 10px;">
-                
-                <!--[if mso]>
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="700" style="width: 700px;">
-                <tr>
-                <td>
-                <![endif]-->
-                
-                <!-- Main content container -->
-                <center>
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="700" align="center" class="container" style="width: 700px; max-width: 700px; background-color: #ffffff; margin: 0 auto !important; float: none;">
-                    <tr>
-                        <td align="left" style="text-align: left;">
-                            ${generateGmailOptimizedContent()}
-                        </td>
-                    </tr>
-                </table>
-                </center>
-                
-                <!--[if mso]>
-                </td>
-                </tr>
-                </table>
-                <![endif]-->
-                
-            </td>
-        </tr>
-    </table>
-</body>
-</html>`;
+                        // Create NationBuilder-optimized HTML
+                        // No outer wrapper, no body/html tags — just the content table
+                        // Uses width:100% to fill NationBuilder's container naturally
+                        const nationBuilderHTML = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width: 100%; border-spacing: 0; border-collapse: collapse; background-color: #ffffff; font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 0;">
+    <tr>
+        <td align="left" style="text-align: left; padding: 0; margin: 0;">
+            ${generateGmailOptimizedContent()}
+        </td>
+    </tr>
+</table>`;
                         
-                        navigator.clipboard.writeText(gmailOptimizedHTML).then(() => {
-                            alert('Gmail-optimized Newsletter HTML copied to clipboard!\n\nThis version includes:\n✅ Gmail anti-blend fixes\n✅ Proper DOCTYPE for email clients\n✅ Inline CSS for maximum compatibility\n✅ Mobile responsive design');
+                        navigator.clipboard.writeText(nationBuilderHTML).then(() => {
+                            alert('NationBuilder-optimized Newsletter HTML copied to clipboard!\n\nThis version includes:\n✅ No outer wrapper — fits NationBuilder\\'s container naturally\n✅ Full-width layout with no extra side spacing\n✅ Inline CSS for maximum compatibility\n✅ Clean HTML ready to paste into NationBuilder\\'s <> code editor');
                         });
                     }
                 };
