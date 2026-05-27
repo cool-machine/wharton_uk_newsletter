@@ -2059,63 +2059,81 @@ Please provide just the alt text without quotes or extra explanation.`;
             };
 
             const saveAsFile = async () => {
-                const name = prompt('Enter new newsletter name:', fileName !== 'Untitled Newsletter' ? fileName + ' Copy' : 'Newsletter Copy');
-                if (!name) return;
-
-                const template = {
-                    name: name,
+                // Build the JSON payload up front so the user-gesture
+                // chain that reaches showSaveFilePicker stays as short
+                // and synchronous as possible.
+                const dataStr = (newsletterName) => JSON.stringify({
+                    name: newsletterName,
                     data: data,
                     createdAt: new Date().toISOString(),
                     lastModified: new Date().toISOString()
-                };
-
-                const dataStr = JSON.stringify(template, null, 2);
+                }, null, 2);
 
                 if (supportsFileSystemAccess()) {
+                    // On File System Access browsers we skip the old
+                    // prompt() because it consumes the user-gesture
+                    // token and then showSaveFilePicker refuses to
+                    // open. The OS save dialog already provides a
+                    // filename field, so one dialog is enough.
+                    const suggestedBase = sanitizeFilename(
+                        fileName && fileName !== 'Untitled Newsletter' ? fileName : 'newsletter'
+                    );
                     try {
                         const newFileHandle = await window.showSaveFilePicker({
-                            suggestedName: `${sanitizeFilename(name)}.json`,
+                            suggestedName: `${suggestedBase}.json`,
                             types: [{
                                 description: 'JSON files',
                                 accept: { 'application/json': ['.json'] }
                             }]
                         });
 
+                        // Derive the newsletter display name from the
+                        // filename the user picked (without extension).
+                        const newName = newFileHandle.name.replace(/\.json$/i, '') || 'Newsletter';
+
                         const writable = await newFileHandle.createWritable();
-                        await writable.write(dataStr);
+                        await writable.write(dataStr(newName));
                         await writable.close();
 
-                        // Save As creates a new file and switches to it
-                        setFileName(name);
+                        setFileName(newName);
                         setCurrentFilePath(newFileHandle.name);
                         setFileHandle(newFileHandle);
                         setIsNewFile(false);
                         setLastSaved(new Date());
                         setHasUnsavedChanges(false);
 
-                        alert(`New newsletter "${name}" saved successfully!`);
+                        alert(`Saved as "${newFileHandle.name}".`);
                     } catch (error) {
                         if (error.name !== 'AbortError') {
                             console.error('Error saving file:', error);
-                            alert(`Could not save the file.\n\n${error.message || error}\n\nTry a simpler name (letters, numbers, spaces, dashes).`);
+                            alert(`Could not save the file.\n\n${error.message || error}`);
                         }
                     }
                 } else {
-                    // Fallback to download (switches to the new file)
-                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                    // Fallback for browsers without File System Access
+                    // (e.g. Safari). No file picker is available, so
+                    // we ask for a name via prompt() and trigger a
+                    // download.
+                    const name = prompt(
+                        'Enter newsletter name:',
+                        fileName !== 'Untitled Newsletter' ? fileName + ' Copy' : 'Newsletter Copy'
+                    );
+                    if (!name) return;
+
+                    const dataBlob = new Blob([dataStr(name)], { type: 'application/json' });
                     const url = URL.createObjectURL(dataBlob);
                     const link = document.createElement('a');
                     link.href = url;
                     link.download = `${sanitizeFilename(name)}.json`;
                     link.click();
                     URL.revokeObjectURL(url);
-                    
+
                     setFileName(name);
                     setCurrentFilePath(link.download);
                     setIsNewFile(false);
                     setLastSaved(new Date());
                     setHasUnsavedChanges(false);
-                    
+
                     alert(`Newsletter "${name}" downloaded successfully!`);
                 }
             };
