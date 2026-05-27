@@ -715,16 +715,6 @@
         </div>
     </div>
 
-    <div class="container">
-        <div class="panel" id="editorPanel">
-            <div id="editor"></div>
-        </div>
-        
-        <div class="panel">
-            <div id="preview"></div>
-        </div>
-    </div>
-
     <input type="file" id="fileInput" accept=".json" style="display: none;">
 
     <script type="text/babel">
@@ -1706,9 +1696,53 @@
                 return 'showSaveFilePicker' in window;
             };
 
+            // Generate a guaranteed-unique ID for a new section.
+            // Uses crypto.randomUUID when available, falls back to a
+            // timestamp+random hybrid for older browsers.
+            const generateSectionId = () => {
+                if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+                    return crypto.randomUUID();
+                }
+                return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+            };
+
+            // Build a safe filename from any user-supplied name.
+            // Allows letters, digits, spaces, dashes, dots, underscores;
+            // strips diacritics so "Élite" becomes "Elite"; falls back
+            // to "newsletter" if the cleaned name would be empty.
+            const sanitizeFilename = (name) => {
+                const base = String(name || '')
+                    .normalize('NFKD')
+                    .replace(/[̀-ͯ]/g, '') // remove combining accents
+                    .replace(/[^a-zA-Z0-9 _.\-]/g, '_')
+                    .replace(/\s+/g, '_')
+                    .replace(/_+/g, '_')
+                    .replace(/^[_.\-]+|[_.\-]+$/g, '')
+                    .toLowerCase();
+                return base || 'newsletter';
+            };
+
+            // Repair data loaded from a JSON template. Older templates
+            // may contain sections that share an id (from the previous
+            // Date.now()-only generator); React keys break when ids
+            // collide, so reassign duplicates on load.
+            const migrateLoadedData = (loaded) => {
+                if (!loaded || !Array.isArray(loaded.sections)) return loaded;
+                const seen = new Set();
+                const sections = loaded.sections.map((section) => {
+                    let id = section && section.id ? String(section.id) : null;
+                    if (!id || seen.has(id)) {
+                        id = generateSectionId();
+                    }
+                    seen.add(id);
+                    return { ...section, id };
+                });
+                return { ...loaded, sections };
+            };
+
             const addSection = () => {
                 const newSection = {
-                    id: Date.now().toString(),
+                    id: generateSectionId(),
                     type: 'generic',
                     title: '', // User-defined section title (optional)
                     subtitle: '', // User-defined section subtitle (optional)
@@ -1757,6 +1791,7 @@
                     }
                     return { ...prev, sections };
                 });
+                setHasUnsavedChanges(true);
             };
 
             const moveSectionDown = (sectionId) => {
@@ -2039,7 +2074,7 @@ Please provide just the alt text without quotes or extra explanation.`;
                 if (supportsFileSystemAccess()) {
                     try {
                         const newFileHandle = await window.showSaveFilePicker({
-                            suggestedName: `${name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`,
+                            suggestedName: `${sanitizeFilename(name)}.json`,
                             types: [{
                                 description: 'JSON files',
                                 accept: { 'application/json': ['.json'] }
@@ -2057,11 +2092,12 @@ Please provide just the alt text without quotes or extra explanation.`;
                         setIsNewFile(false);
                         setLastSaved(new Date());
                         setHasUnsavedChanges(false);
-                        
+
                         alert(`New newsletter "${name}" saved successfully!`);
                     } catch (error) {
                         if (error.name !== 'AbortError') {
                             console.error('Error saving file:', error);
+                            alert(`Could not save the file.\n\n${error.message || error}\n\nTry a simpler name (letters, numbers, spaces, dashes).`);
                         }
                     }
                 } else {
@@ -2070,7 +2106,7 @@ Please provide just the alt text without quotes or extra explanation.`;
                     const url = URL.createObjectURL(dataBlob);
                     const link = document.createElement('a');
                     link.href = url;
-                    link.download = `${name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+                    link.download = `${sanitizeFilename(name)}.json`;
                     link.click();
                     URL.revokeObjectURL(url);
                     
@@ -2301,7 +2337,7 @@ Please provide just the alt text without quotes or extra explanation.`;
                             try {
                                 const template = JSON.parse(contents);
                                 if (template.data) {
-                                    setData(template.data);
+                                    setData(migrateLoadedData(template.data));
                                     setFileName(template.name || file.name.replace('.json', ''));
                                     setCurrentFilePath(file.name);
                                     setFileHandle(newFileHandle); // Keep the handle for saving
@@ -2385,7 +2421,7 @@ Please provide just the alt text without quotes or extra explanation.`;
                             try {
                                 const template = JSON.parse(e.target.result);
                                 if (template.data) {
-                                    setData(template.data);
+                                    setData(migrateLoadedData(template.data));
                                     setFileName(template.name || file.name.replace('.json', ''));
                                     setCurrentFilePath(file.name);
                                     setIsNewFile(false);
@@ -2540,8 +2576,9 @@ Please provide just the alt text without quotes or extra explanation.`;
             };
 
             return (
-                <>
+                <div className="container">
                     {showEditor && (
+                        <div className="panel" id="editorPanel">
                         <div id="editor">
                             <h2 style={{ color: '#011F5B', marginBottom: '24px' }}>
                                 📝 Newsletter Editor
@@ -2925,12 +2962,15 @@ Please provide just the alt text without quotes or extra explanation.`;
                                 </div>
                             </div>
                         </div>
+                        </div>
                     )}
 
-                    <div id="preview">
-                        <NewsletterPreview data={data} />
+                    <div className="panel">
+                        <div id="preview">
+                            <NewsletterPreview data={data} />
+                        </div>
                     </div>
-                </>
+                </div>
             );
         }
 
