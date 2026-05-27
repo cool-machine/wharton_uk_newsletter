@@ -1045,7 +1045,21 @@
 
             return (
                 <div className="rich-editor">
-                    <div className="editor-toolbar">
+                    {/*
+                        Block focus-stealing on every toolbar click EXCEPT the
+                        <select> dropdowns (which need mousedown to open).
+                        preventDefault on mousedown stops the browser from
+                        moving focus away from the contentEditable region, so
+                        the user's text selection survives the click. The
+                        subsequent click handler still fires normally.
+                    */}
+                    <div
+                        className="editor-toolbar"
+                        onMouseDown={(e) => {
+                            if (e.target.closest('select')) return;
+                            e.preventDefault();
+                        }}
+                    >
                         {/* Row 1: Essential Formatting */}
                         <div className="editor-toolbar-row">
                             {/* History Group */}
