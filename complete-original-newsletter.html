@@ -1491,6 +1491,8 @@
                         <div key="button" style={{ marginTop: '16px' }}>
                             <a
                                 href={section.url}
+                                target="_blank"
+                                rel="noopener"
                                 style={{
                                     display: 'inline-block',
                                     backgroundColor: '#990000',
@@ -1578,7 +1580,7 @@
                                         <h2 style={styles.heading}>Join our Communities</h2>
                                         {data.communityLinks.map((link, index) => (
                                             <div key={index} style={{ marginBottom: '16px' }}>
-                                                <a href={link.url} style={{ ...styles.communityBox, textDecoration: 'none', fontWeight: 'bold' }}>
+                                                <a href={link.url} target="_blank" rel="noopener" style={{ ...styles.communityBox, textDecoration: 'none', fontWeight: 'bold' }}>
                                                     {link.title}
                                                 </a>
                                                 <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>{link.description}</p>
@@ -1606,8 +1608,8 @@
                                 <td style={styles.footer} className="responsive-td">
                                     <p style={styles.text} className="responsive-text">
                                         <strong>Stay connected with us:</strong><br/>
-                                        <a href="https://www.whartonclubuk.net/" style={styles.footerLink}>Website</a> | {' '}
-                                        <a href="https://www.linkedin.com/company/wharton-club-uk/" style={styles.footerLink}>LinkedIn</a>
+                                        <a href="https://www.whartonclubuk.net/" target="_blank" rel="noopener" style={styles.footerLink}>Website</a> | {' '}
+                                        <a href="https://www.linkedin.com/company/wharton-club-uk/" target="_blank" rel="noopener" style={styles.footerLink}>LinkedIn</a>
                                     </p>
                                     <p style={styles.text} className="responsive-text">
                                         <strong>Contact us:</strong> <a href="mailto:webmaster@whartonclubuk.net" style={styles.footerLink}>webmaster@whartonclubuk.net</a>
@@ -2253,8 +2255,8 @@ Please provide just the alt text without quotes or extra explanation.`;
         <td style="padding: 20px 16px; border-top: 1px solid #eaeaea; text-align: center; background-color: #f8f8f8; font-family: Arial, Helvetica, sans-serif;">
             <p style="color: #666666; line-height: 1.6; font-size: 14px; margin: 0 0 16px 0;">
                 <strong>Stay connected with us:</strong><br/>
-                <a href="https://www.whartonclubuk.net/" style="color: #011F5B; text-decoration: none;">Website</a> | 
-                <a href="https://www.linkedin.com/company/wharton-club-uk/" style="color: #011F5B; text-decoration: none;">LinkedIn</a>
+                <a href="https://www.whartonclubuk.net/" target="_blank" rel="noopener" style="color: #011F5B; text-decoration: none;">Website</a> |
+                <a href="https://www.linkedin.com/company/wharton-club-uk/" target="_blank" rel="noopener" style="color: #011F5B; text-decoration: none;">LinkedIn</a>
             </p>
             <p style="color: #666666; line-height: 1.6; font-size: 14px; margin: 0 0 16px 0;">
                 <strong>Contact us:</strong> <a href="mailto:webmaster@whartonclubuk.net" style="color: #011F5B; text-decoration: none;">webmaster@whartonclubuk.net</a>
@@ -2295,7 +2297,7 @@ Please provide just the alt text without quotes or extra explanation.`;
                             : '',
                         button: section.url
                             ? `<div style="margin-top: 20px; text-align: left;">
-                            <a href="${section.url}" style="display: inline-block; background-color: #990000; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold; font-family: Arial, sans-serif; border: none; text-align: center; min-width: 120px;" class="mobile-button">
+                            <a href="${section.url}" target="_blank" rel="noopener" style="display: inline-block; background-color: #990000; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold; font-family: Arial, sans-serif; border: none; text-align: center; min-width: 120px;" class="mobile-button">
                                 ${section.buttonText || 'Learn More'}
                             </a>
                         </div>`
@@ -2314,7 +2316,7 @@ Please provide just the alt text without quotes or extra explanation.`;
             ${data.communityLinks.map(link => `<div style="margin-bottom: 16px; padding: 12px; background-color: #f9f9f9; border-radius: 4px; border: 2px solid #990000;">
                 <div style="font-size: 16px; color: #333333; margin: 0 0 8px 0; font-weight: 600; line-height: 1.2;">${link.title}</div>
                 <div style="color: #666666; line-height: 1.2; font-size: 14px; margin: 0 0 8px 0;">${link.description}</div>
-                <a href="${link.url}" style="display: inline-block; background-color: #990000; color: #ffffff; padding: 8px 12px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold;">${link.title.toLowerCase().includes('whatsapp') ? 'Join Group' : link.title.toLowerCase().includes('ai studio') ? 'Join AI Studio' : 'Join Now'}</a>
+                <a href="${link.url}" target="_blank" rel="noopener" style="display: inline-block; background-color: #990000; color: #ffffff; padding: 8px 12px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold;">${link.title.toLowerCase().includes('whatsapp') ? 'Join Group' : link.title.toLowerCase().includes('ai studio') ? 'Join AI Studio' : 'Join Now'}</a>
             </div>`).join('')}
         </td>
     </tr>`;
